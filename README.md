@@ -1,14 +1,14 @@
-# 🎬 MovieHub - Netflix-Style Platform with AI Recommendations
+# MovieHub - Movie Platform with AI Recommendations
 
 **MISE À JOUR COMPLÈTE - Août 2026**
 
 ---
 
-## 🎯 RÉSUMÉ DU PROJET
+## RÉSUMÉ DU PROJET
 
 MovieHub est une plateforme de streaming moderne inspirée de Netflix avec un système de recommandation basé sur l'intelligence artificielle. Développée avec Angular 18, Django 5, et MongoDB, elle utilise TensorFlow Hub pour offrir des recommandations personnalisées en temps réel.
 
-### ⭐ NOUVELLES FONCTIONNALITÉS MAJEURES
+### NOUVELLES FONCTIONNALITÉS MAJEURES
 
 #### 1. **10 Sections Personnalisées Correctes** (Dernière Mise à Jour)
 Chaque utilisateur reçoit 10 sections adaptées à ses préférences:
@@ -24,9 +24,9 @@ Chaque utilisateur reçoit 10 sections adaptées à ses préférences:
 - **Top 20 Favoris**: 20 FILMS SEULEMENT (pas mélangé avec séries), note 8.0+
 - **Nouveaux films/séries ajoutés**: 2023-2026 UNIQUEMENT (vraiment nouveau!)
 
-#### 2. **Intégration Ratings IMDB** ⭐ NOUVEAU!
+#### 2. **Intégration Ratings IMDB**
 - **Source**: OMDB API + TMDB API + défauts intelligents
-- **Affichage**: ⭐ 8.8/10 avec nombre de votes (2.4M votes)
+- **Affichage**: Note avec nombre de votes
 - **Emplacement**: Toutes les cartes, carrousels, modales de détail
 - **Style**: Badges dorés avec effet glassmorphism
 - **Couverture**: 100% du contenu a une note (zéro donnée manquante)
@@ -41,7 +41,7 @@ Chaque section affiche maintenant le BON contenu:
 
 ---
 
-## 💻 STACK TECHNIQUE
+## STACK TECHNIQUE
 
 ### Frontend
 - **Angular 18.2.13**: Framework SPA avec TypeScript
@@ -68,7 +68,7 @@ Chaque section affiche maintenant le BON contenu:
 
 ---
 
-## 🏗️ ARCHITECTURE
+## ARCHITECTURE
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -77,14 +77,14 @@ Chaque section affiche maintenant le BON contenu:
 │   - Services (API communication)            │
 │   - Carousels, Modales, Search              │
 └──────────────────────────────────────────────┘
-                   ↕ HTTP REST
+                   HTTP REST
 ┌──────────────────────────────────────────────┐
 │   COUCHE APPLICATION (Django 5)              │
 │   - accounts/ (Auth & Analytics)             │
 │   - movies/ (Gestion catalogue)              │
 │   - recommendations/ (Moteur AI)             │
 └──────────────────────────────────────────────┘
-                   ↕ MongoEngine
+                   MongoEngine
 ┌──────────────────────────────────────────────┐
 │   COUCHE DONNÉES (MongoDB)                   │
 │   - 2,704 films/séries                       │
@@ -95,7 +95,7 @@ Chaque section affiche maintenant le BON contenu:
 
 ---
 
-## 🤖 SYSTÈME DE RECOMMANDATION AI
+## SYSTÈME DE RECOMMANDATION AI
 
 ### Comment ça Marche?
 
@@ -140,7 +140,7 @@ Chaque section affiche maintenant le BON contenu:
 
 ---
 
-## 📊 SCHÉMA BASE DE DONNÉES
+## SCHÉMA BASE DE DONNÉES
 
 ### Collections Principales
 
@@ -170,14 +170,14 @@ Stocke les 10 sections personnalisées pour chaque utilisateur:
 - newly_added_series (20 séries 2023-2026)
 
 **Avantages**:
-- ✅ Chargement instantané (pré-calculé)
-- ✅ Contenu cohérent (pas de changements aléatoires)
-- ✅ Moins de charge serveur
-- ✅ Mise à jour: 24h ou sur demande
+- Chargement pré-calculé
+- Contenu cohérent
+- Réduction de la charge serveur
+- Mise à jour toutes les 24 heures ou sur demande
 
 ---
 
-## ⭐ FONCTIONNALITÉS PRINCIPALES
+## FONCTIONNALITÉS PRINCIPALES
 
 ### 1. Interface Style Netflix
 - **Carrousels horizontaux**: 5 éléments par page
@@ -211,7 +211,7 @@ Stocke les 10 sections personnalisées pour chaque utilisateur:
 
 ---
 
-## 🌐 ENDPOINTS API
+## ENDPOINTS API
 
 ### Authentification
 ```
@@ -230,7 +230,7 @@ POST   /api/movies/search/           - Rechercher films
 GET    /api/genres/                  - Tous les genres
 ```
 
-### Recommandations AI ⭐ MIS À JOUR
+### Recommandations AI
 ```
 GET  /api/recommendations/{username}/?count=100
      → Recommandations AI personnalisées
@@ -250,7 +250,7 @@ POST /api/recommendations/index-movies/
 
 ---
 
-## 🚀 INSTALLATION
+## INSTALLATION
 
 ### Prérequis
 - Python 3.12+
@@ -276,7 +276,6 @@ ng serve --port 4200
 ### 3. Accès
 - **Frontend**: http://localhost:4200
 - **Backend**: http://localhost:8000
-- **Credentials**: Voir ALL_USERS_CREDENTIALS.txt (password: 12345678)
 
 ### 4. Initialiser AI
 1. Login comme admin
@@ -286,7 +285,7 @@ ng serve --port 4200
 
 ---
 
-## 📈 STATISTIQUES PROJET
+## STATISTIQUES PROJET
 
 ### Métriques Code
 - **Frontend**: ~8,000 lignes (15 fichiers)
@@ -309,7 +308,7 @@ ng serve --port 4200
 
 ---
 
-## 🔮 AMÉLIORATIONS FUTURES
+## AMÉLIORATIONS FUTURES
 
 ### Fonctionnalités Prévues
 - [ ] Streaming vidéo réel (HLS/DASH)
@@ -333,7 +332,7 @@ ng serve --port 4200
 
 ---
 
-## 📝 CRÉDITS
+## CRÉDITS
 
 **Développé par**: Zied Ellili  
 **Institution**: ENIS (École Nationale d'Ingénieurs de Sfax)  
@@ -357,13 +356,13 @@ ng serve --port 4200
 
 ---
 
-## 📞 SUPPORT
+## SUPPORT
 
 **Email**: ziedellili54@gmail.com  
 **Documentation**: Voir fichiers .txt dans root projet
 
 ---
 
-**Construit avec ❤️ pour l'apprentissage du développement full-stack avec AI**
+Construit pour l'apprentissage du développement full-stack avec AI.
 
 *Dernière mise à jour: 6 août 2026*
