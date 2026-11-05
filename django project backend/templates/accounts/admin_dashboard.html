@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MovieApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-hover: #e84118;
+            --bg-dark: #0b0914;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-bg-hover: rgba(255, 255, 255, 0.06);
+            --text-light: #f5f6fa;
+            --text-muted: #a4b0be;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #2ed573;
+            --danger: #ff4757;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: rgba(15, 12, 32, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ff4757, #ff6b81);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.btn {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .nav-links a.btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin: 40px 0 20px 0;
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .actions a {
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 6px;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .badge.admin {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MovieApp Admin</h1>
+        <div class="nav-links">
+            <a href="/movies-page/">View Site</a>
+            <a href="/api-search/">Import OMDb</a>
+            <a href="/add-movie-page/">Add Movie Manual</a>
+            <a href="/fetch-page/">API Netflix Fetch</a>
+            <a href="/login/" class="btn">Logout</a>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Movies</h3>
+                <p>{{ movies|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Registered Users</h3>
+                <p>{{ users|length }}</p>
+            </div>
+        </div>
+
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="section-title">Manage Movies</div>
+            <a href="/add-movie-page/" style="color: var(--primary); font-weight: 600; text-decoration: none;">+ Add New Movie</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Year</th>
+                        <th>Director</th>
+                        <th>Country</th>
+                        <th>Genre</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ movie.title }}</td>
+                        <td><span class="badge">{{ movie.type }}</span></td>
+                        <td>{{ movie.release_year }}</td>
+                        <td>{{ movie.director|default:"-" }}</td>
+                        <td>{{ movie.country|default:"-" }}</td>
+                        <td>{{ movie.listed_in|default:"-" }}</td>
+                        <td class="actions">
+                            <a href="/admin/edit-movie/{{ movie.id }}/" class="btn-edit">Edit</a>
+                            <a href="/admin/delete-movie/{{ movie.id }}/" class="btn-delete" onclick="return confirm('Are you sure you want to delete this movie?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted);">No movies in database.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title">Manage Users</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td style="font-family: monospace;">{{ user.user_id|default:"-" }}</td>
+                        <td style="font-weight: 600;">{{ user.username }}</td>
+                        <td>{{ user.email|default:"-" }}</td>
+                        <td>
+                            {% if user.username == 'admin' %}
+                                <span class="badge admin">Administrator</span>
+                            {% else %}
+                                <span class="badge">Standard</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            {% if user.username != 'admin' %}
+                            <a href="/admin/delete-user/{{ user.id }}/" class="btn-delete" onclick="return confirm('Are you sure you want to delete this user?')">Delete User</a>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">System Account</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted);">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>

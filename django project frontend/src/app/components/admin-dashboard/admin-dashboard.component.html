@@ -1,0 +1,692 @@
+<div class="dashboard-container">
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="gradient-text">MovieHub</span> {{ isAdmin ? 'Admin Panel' : 'User Portal' }}
+    </div>
+    <div class="user-menu">
+      <span class="welcome">Welcome, <strong>{{ username }}</strong> <span class="role-indicator">({{ isAdmin ? 'Admin' : 'Standard' }})</span></span>
+      <button class="btn-logout" (click)="onLogout()">Log Out</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="toast success" (click)="successMessage = ''">
+      {{ successMessage }}
+      <span class="close">&times;</span>
+    </div>
+    <div *ngIf="errorMessage" class="toast error" (click)="errorMessage = ''">
+      {{ errorMessage }}
+      <span class="close">&times;</span>
+    </div>
+
+    <!-- Edit Movie Modal/Form (Inline/Popup overlay) -->
+    <div *ngIf="editingMovie" class="modal-overlay">
+      <div class="modal-card">
+        <h3>Edit Movie: {{ editingMovie.title }}</h3>
+        <form (ngSubmit)="onSaveEditMovie()" class="add-form">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" [(ngModel)]="editingMovie.title" name="edit_title" required class="input-dark" />
+          </div>
+
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="editingMovie.type" name="edit_type" class="input-dark">
+              <option value="Movie">Movie</option>
+              <option value="TV Show">TV Show</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Release Year</label>
+            <select [(ngModel)]="editingMovie.release_year" name="edit_release_year" class="input-dark">
+              <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Director</label>
+            <input type="text" [(ngModel)]="editingMovie.director" name="edit_director" class="input-dark" />
+          </div>
+          <div class="form-group">
+            <label>Duration</label>
+            <input type="text" [(ngModel)]="editingMovie.duration" name="edit_duration" class="input-dark" />
+          </div>
+
+          <div class="form-group">
+            <label>Genres</label>
+            <input type="text" [(ngModel)]="editingMovie.listed_in" name="edit_listed_in" class="input-dark" />
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="editingMovie.description" name="edit_description" class="input-dark" rows="3"></textarea>
+          </div>
+
+          <div class="flex-row">
+            <button type="submit" class="btn-action">Save Changes</button>
+            <button type="button" class="btn-cancel" (click)="onCancelEditMovie()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="dashboard-grid" [ngClass]="{'admin-layout': isAdmin, 'user-layout': !isAdmin}">
+      
+      <!-- Left sidebar / Actions (Shown for Admin or general info) -->
+      <section class="controls-section">
+        <!-- Fetch from Netflix external API (Admin only) -->
+        <div *ngIf="isAdmin" class="card action-card">
+          <h3>Sync Netflix Data</h3>
+          <p class="description">Fetch popular movies and TV shows from Netflix API by year and sync to DB.</p>
+          <div class="flex-column" style="display: flex; flex-direction: column; gap: 10px;">
+            <select [(ngModel)]="fetchType" class="input-dark">
+              <option value="TV Show">TV Shows</option>
+              <option value="Movie">Movies</option>
+            </select>
+            <div class="flex-row">
+              <select [(ngModel)]="fetchYear" class="input-dark">
+                <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+              </select>
+              <button class="btn-action" (click)="onFetchMovies()" [disabled]="loading">Sync</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Custom Movie Form (Admin only) -->
+        <div *ngIf="isAdmin" class="card form-card">
+          <h3>Add Custom Movie</h3>
+          <p class="description" style="font-size:12px; color:#94a3b8; margin-bottom:10px;">Fields marked with <span style="color:#ef4444;">*</span> are required.</p>
+          <form (ngSubmit)="onAddMovie()" class="add-form">
+            <div class="form-group">
+              <label>Title <span style="color:#ef4444;">*</span></label>
+              <input type="text" [(ngModel)]="newMovie.title" name="title" required class="input-dark" placeholder="Enter title" />
+            </div>
+
+            <div class="form-group">
+              <label>Type</label>
+              <select [(ngModel)]="newMovie.type" name="type" class="input-dark">
+                <option value="Movie">Movie</option>
+                <option value="TV Show">TV Show</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Release Year</label>
+              <select [(ngModel)]="newMovie.release_year" name="release_year" class="input-dark">
+                <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Director</label>
+              <input type="text" [(ngModel)]="newMovie.director" name="director" class="input-dark" placeholder="Enter director name" />
+            </div>
+
+            <div class="form-group">
+              <label>Duration</label>
+              <input type="text" [(ngModel)]="newMovie.duration" name="duration" class="input-dark" placeholder="e.g. 148 min" />
+            </div>
+
+            <div class="form-group">
+              <label>Genres (comma separated)</label>
+              <input type="text" [(ngModel)]="newMovie.listed_in" name="listed_in" class="input-dark" placeholder="e.g. Action, Sci-Fi" />
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea [(ngModel)]="newMovie.description" name="description" class="input-dark" rows="3" placeholder="Enter description..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="loading || !isAddFormValid()">Save Movie</button>
+          </form>
+        </div>
+
+        <!-- Search OMDb API & Tick to Save Card (Admin only) -->
+        <div *ngIf="isAdmin" class="card action-card">
+          <h3>Search OMDb API & Import</h3>
+          <p class="description">Search any movie/show on OMDb API, tick the ones you want, and click Import Selected.</p>
+          <div class="flex-row">
+            <input type="text" [(ngModel)]="omdbSearchQuery" placeholder="Search by title (e.g. Inception)" class="input-dark" (keyup.enter)="onSearchOMDb()" />
+            <button class="btn-action" (click)="onSearchOMDb()" [disabled]="omdbSearching">Search API</button>
+          </div>
+
+          <!-- Search Results List with Checkboxes -->
+          <div *ngIf="omdbResults.length > 0" class="omdb-results-list" style="margin-top: 15px;">
+            <div *ngFor="let item of omdbResults; trackBy: trackByShowId" class="omdb-item-row" style="display: flex; align-items: center; gap: 10px; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <input type="checkbox" [checked]="item.selected" [disabled]="item.already_saved" (change)="toggleOmdbItem(item)" style="width: 18px; height: 18px; cursor: pointer;" />
+              <img [src]="item.poster || 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2260%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222%22%2F%3E%3C%2Fsvg%3E'" style="width: 40px; height: 56px; border-radius: 4px; object-fit: cover;" />
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #fff;">{{ item.title }} ({{ item.release_year }})</div>
+                <div style="font-size: 12px; color: #94a3b8;">{{ item.type }} &bull; {{ item.listed_in }}</div>
+              </div>
+              <span *ngIf="item.already_saved" class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);">⚠️ Already in DB (Cannot Re-add)</span>
+            </div>
+
+            <button class="btn-submit" (click)="onSaveSelectedOMDb()" [disabled]="!hasSelectedOMDbItems() || omdbSaving" style="margin-top: 15px;">
+              Import Selected to Database
+            </button>
+          </div>
+        </div>
+
+        <!-- Browse External API (Admin only) -->
+        <div *ngIf="isAdmin" class="card action-card">
+          <h3>🌐 Browse External API</h3>
+          <p class="description">Browse and import movies from any external API. View all items, filter, and select what to add to your database.</p>
+          <button class="btn-action" style="width: 100%;" (click)="navigateToApiBrowser()">
+            🚀 Open API Browser (Full Page)
+          </button>
+        </div>
+
+        <!-- User Information Panel -->
+        <div *ngIf="!isAdmin" class="card info-card">
+          <h3>Portal Details</h3>
+          <p class="description">You are logged in as a Standard User. You can search, filter, and view details of all catalog movies.</p>
+          <div class="stats-mini">
+            <div class="stat-box">
+              <span class="stat-num">{{ totalMovies }}</span>
+              <span class="stat-lbl">Titles Matching</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ ADMIN: Pack Builder ══ -->
+        <div *ngIf="isAdmin" id="pack-builder-card" class="card pack-builder-card">
+          <div class="pack-builder-header">
+            <h3>{{ editingPack ? '✏️ Edit Pack: ' + editingPack.name : '📦 Create New Pack' }}</h3>
+            <button *ngIf="editingPack" class="btn-cancel-pack" (click)="cancelEditPack()">✕ Cancel Edit</button>
+          </div>
+
+          <!-- Name & Level row -->
+          <div class="pack-name-row">
+            <div class="form-group" style="flex: 1;">
+              <label>Pack Name *</label>
+              <input type="text" [(ngModel)]="packBuilder.name" class="input-dark" placeholder="e.g. Drama 2025" />
+            </div>
+            <div class="form-group" style="width: 90px;">
+              <label>Level</label>
+              <input type="number" [(ngModel)]="packBuilder.level" class="input-dark" min="1" />
+            </div>
+          </div>
+
+          <!-- Cover Image Upload / Select Section -->
+          <div class="form-group pack-cover-section">
+            <label>🖼️ Pack Cover Photo (Optional)</label>
+            <div class="pack-cover-inputs">
+              <input type="text" [(ngModel)]="packBuilder.coverImage" class="input-dark" placeholder="Paste image URL..." style="flex:1;" />
+              <label class="btn-file-upload">
+                📁 Upload File
+                <input type="file" (change)="onPackCoverFileSelected($event)" accept="image/*" style="display:none;" />
+              </label>
+            </div>
+
+            <!-- Image Dimensions & Alignment Adjustments -->
+            <div *ngIf="packBuilder.coverImage" class="cover-adjustments-panel">
+              <div class="adjust-row">
+                <div class="adjust-group">
+                  <label>📐 Height: <strong>{{ packBuilder.coverHeight }}px</strong></label>
+                  <input type="range" [(ngModel)]="packBuilder.coverHeight" min="150" max="500" step="10" class="range-slider" />
+                </div>
+                <div class="adjust-group">
+                  <label>🖼️ Image Display Mode</label>
+                  <select [(ngModel)]="packBuilder.coverFit" class="input-dark select-sm">
+                    <option value="contain">Fit Full Image (No Cropping / All Details)</option>
+                    <option value="cover">Fill Entire Box (Zoom & Crop)</option>
+                  </select>
+                </div>
+                <div class="adjust-group">
+                  <label>🎯 Vertical Focus</label>
+                  <select [(ngModel)]="packBuilder.coverPosition" class="input-dark select-sm">
+                    <option value="top">Top Focus</option>
+                    <option value="center">Center Focus</option>
+                    <option value="bottom">Bottom Focus</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Live Preview Box -->
+              <div class="live-cover-preview-box" [style.height.px]="packBuilder.coverHeight">
+                <img [src]="packBuilder.coverImage" class="live-cover-img" [style.object-fit]="packBuilder.coverFit" [style.object-position]="packBuilder.coverPosition" (error)="onImageError($event)" />
+                <div class="live-cover-overlay">
+                  <span class="single-pack-badge">LIVE PREVIEW</span>
+                  <h4 style="margin:4px 0 0 0; color:#fff; font-size:18px;">{{ packBuilder.name || 'Pack Title' }}</h4>
+                </div>
+                <button type="button" class="btn-remove-cover" (click)="packBuilder.coverImage = ''">✕ Remove Cover</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Genres & Years selection -->
+          <div class="pack-filters-row">
+            <div class="pack-filter-col">
+              <label class="pack-filter-label">🎭 Select Genres</label>
+              <div class="chip-list">
+                <span *ngFor="let genre of genresList"
+                      class="chip"
+                      [ngClass]="{ 'chip-active': isGenreSelected(genre) }"
+                      (click)="toggleGenreSelection(genre)">{{ genre }}</span>
+              </div>
+            </div>
+            <div class="pack-filter-col">
+              <label class="pack-filter-label">📅 Select Years</label>
+              <div class="year-chips-container">
+                <span *ngFor="let year of yearsList"
+                      class="chip year-chip"
+                      [ngClass]="{ 'chip-active': isYearSelected(year) }"
+                      (click)="toggleYearSelection(year)">{{ year }}</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-preview-pack" (click)="onPreviewPack()" [disabled]="packPreviewing || (!packBuilder.selectedGenres.length && !packBuilder.selectedYears.length)">
+            <span *ngIf="!packPreviewing">🔍 Preview Results</span>
+            <span *ngIf="packPreviewing">Loading...</span>
+          </button>
+
+          <!-- Preview Results -->
+          <div *ngIf="packPreviewResults.length > 0" class="pack-preview-section">
+            <div class="pack-preview-header">
+              <span class="badge">{{ packPreviewResults.length }} results found</span>
+              <button class="btn-select-all" (click)="onSelectAllPackItems()">
+                {{ packBuilder.selectedMovieIds.length === packPreviewResults.length ? 'Deselect All' : 'Select All' }}
+              </button>
+              <span class="selected-count">{{ packBuilder.selectedMovieIds.length }} selected</span>
+            </div>
+            <div class="pack-preview-grid">
+              <div *ngFor="let item of packPreviewResults"
+                   class="pack-preview-item"
+                   [ngClass]="{ 'pack-item-selected': isPackItemSelected(item.id) }"
+                   (click)="togglePackPreviewItem(item)">
+                <div class="pack-item-checkbox">
+                  <span *ngIf="isPackItemSelected(item.id)">✓</span>
+                </div>
+                <img [src]="getPosterUrl(item)" class="pack-thumb" loading="lazy" (error)="onImageError($event)" />
+                <div class="pack-item-info">
+                  <span class="pack-item-title">{{ item.title }}</span>
+                  <span class="pack-item-year">{{ item.release_year }}</span>
+                  <button *ngIf="getPosterUrl(item)" type="button" class="btn-set-cover" (click)="$event.stopPropagation(); selectPosterAsPackCover(getPosterUrl(item))" title="Use poster as pack cover">
+                    🖼️ Set Cover
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-save-pack"
+                    (click)="onSavePack()"
+                    [disabled]="packSaving || !packBuilder.name.trim() || !packBuilder.selectedMovieIds.length">
+              <span *ngIf="!packSaving">💾 {{ editingPack ? 'Update Pack' : 'Save Pack' }}</span>
+              <span *ngIf="packSaving">Saving...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ ADMIN: Existing Packs List ══ -->
+        <div *ngIf="isAdmin && packs.length > 0" class="card packs-list-card">
+          <h3>📋 Existing Packs</h3>
+          <div class="packs-admin-list">
+            <div *ngFor="let pack of packs" class="pack-admin-row">
+              <div class="pack-admin-info">
+                <span class="pack-level-badge">Lvl {{ pack.level }}</span>
+                <span class="pack-admin-name">{{ pack.name }}</span>
+                <span class="badge" style="font-size:11px;">{{ pack.movie_ids?.length || 0 }} titles</span>
+                <span class="pack-genres-preview">{{ pack.genres?.join(', ') }}</span>
+              </div>
+              <div class="pack-admin-actions">
+                <button class="btn-pack-action" (click)="onMovePackLevel(pack, 'up')" title="Move Up" [disabled]="pack.level <= 1">▲</button>
+                <button class="btn-pack-action" (click)="onMovePackLevel(pack, 'down')" title="Move Down">▼</button>
+                <button class="btn-pack-edit" (click)="onEditPack(pack)">✏️ Edit</button>
+                <button class="btn-pack-delete" (click)="onDeletePack(pack.id, pack.name)">🗑️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right section / Movies List & User Management -->
+      <section class="list-section">
+        <!-- User Management Table (Admin Only) -->
+        <div *ngIf="isAdmin" class="card list-card user-management-card">
+          <div class="list-header">
+            <h3>Registered Users</h3>
+            <span class="badge user-badge">{{ users.length }} users</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="movies-table user-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let u of users">
+                  <td>{{ u.user_id || '-' }}</td>
+                  <td><strong>{{ u.username }}</strong></td>
+                  <td>{{ u.email || '-' }}</td>
+                  <td>
+                    <span class="role-badge" [ngClass]="u.role">
+                      {{ u.role === 'admin' ? 'Administrator' : 'Standard User' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      *ngIf="u.role !== 'admin'" 
+                      class="btn-delete-row" 
+                      (click)="onDeleteUser(u.id)">
+                      Delete User
+                    </button>
+                    <span *ngIf="u.role === 'admin'" class="system-tag">System Account</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Interactive Search & Filtering Toolbar -->
+        <div class="filter-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (input)="onSearchInput()" 
+              placeholder="Search by title, cast, or director..." 
+              class="search-input"
+            />
+          </div>
+          <div class="filter-options">
+            <select [(ngModel)]="selectedGenre" (change)="applyFilters()" class="filter-select">
+              <option value="">All Genres</option>
+              <option *ngFor="let genre of genresList" [value]="genre">{{ genre }}</option>
+            </select>
+            <select [(ngModel)]="selectedType" (change)="applyFilters()" class="filter-select">
+              <option value="">All Types</option>
+              <option value="Movie">Movies Only</option>
+              <option value="TV Show">TV Shows Only</option>
+            </select>
+            <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select">
+              <option value="title-asc">Title (A-Z)</option>
+              <option value="title-desc">Title (Z-A)</option>
+              <option value="year-desc">Newest First</option>
+              <option value="year-asc">Oldest First</option>
+            </select>
+          </div>
+          <div class="export-buttons">
+            <button 
+              *ngIf="!isAdmin"
+              class="btn-export btn-fav-filter" 
+              [ngClass]="{ 'active-fav': showFavoritesOnly }" 
+              (click)="toggleFavoritesFilter()" 
+              [title]="showFavoritesOnly ? 'Show All Titles' : 'Show Favorites Only'">
+              {{ showFavoritesOnly ? '❤️ Favorites (' + favorites.size + ')' : '🤍 Favorites (' + favorites.size + ')' }}
+            </button>
+            <button class="btn-export" (click)="exportToCSV()" title="Export as CSV">
+              📊 CSV
+            </button>
+            <button class="btn-export" (click)="exportToJSON()" title="Export as JSON">
+              📄 JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ USER: Packs Section (Netflix-style rows & Vertical Pack Cards) ══ -->
+        <div *ngIf="!isAdmin && filteredPacks.length > 0 && !showFavoritesOnly" class="packs-user-section">
+          <div *ngFor="let pack of filteredPacks" class="pack-user-row">
+            <div class="pack-row-header">
+              <h3 class="pack-row-title">{{ pack.name }}</h3>
+              <span class="pack-row-count">{{ pack.movies?.length || 0 }} titles</span>
+            </div>
+
+            <!-- Vertical Poster + Details Card if pack has a cover image -->
+            <div *ngIf="pack.cover_image" class="single-pack-cover-card" (click)="openPackModal(pack, $event)">
+              <div class="single-pack-poster-container">
+                <img [src]="pack.cover_image" class="single-pack-vertical-img" (error)="onImageError($event)" />
+              </div>
+              <div class="single-pack-details">
+                <span class="single-pack-badge">PACK COLLECTION</span>
+                <h4>{{ pack.name }}</h4>
+                <p class="pack-count-text">🎬 {{ pack.movies?.length || 0 }} Titles included in this pack</p>
+                <div *ngIf="pack.genres?.length" class="pack-genres-tags">
+                  <span *ngFor="let g of pack.genres" class="pack-genre-tag">{{ g }}</span>
+                </div>
+                <button type="button" class="btn-explore-pack" (click)="openPackModal(pack, $event)">
+                  ▶ Browse All Titles in Pack
+                </button>
+              </div>
+            </div>
+
+            <!-- Horizontal carousel mode if no custom cover image -->
+            <div *ngIf="!pack.cover_image" class="pack-row-scroll">
+              <div *ngFor="let movie of pack.movies" class="pack-movie-card" (click)="openMovieDetail(movie)">
+                <div class="pack-movie-poster-wrap">
+                  <img [src]="getPosterUrl(movie)" class="pack-movie-poster" loading="lazy" (error)="onImageError($event)" />
+                  <div class="pack-movie-overlay">
+                    <button *ngIf="!isAdmin" class="btn-overlay-favorite small"
+                            [ngClass]="{ 'favorited': isFavorite(movie.id) }"
+                            (click)="$event.stopPropagation(); toggleFavorite(movie.id)">
+                      {{ isFavorite(movie.id) ? '❤️' : '🤍' }}
+                    </button>
+                  </div>
+                </div>
+                <div class="pack-movie-meta">
+                  <span class="pack-movie-title">{{ movie.title }}</span>
+                  <span class="pack-movie-year">{{ movie.release_year }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Netflix-style Movies Grid -->
+        <div class="catalog-container">
+          <div class="catalog-header">
+            <h3>Database Catalog</h3>
+            <span class="badge">{{ totalMovies }} titles found</span>
+          </div>
+
+          <div *ngIf="loading" class="spinner-container">
+            <div class="spinner"></div>
+            <p>Loading database catalog...</p>
+          </div>
+
+          <div *ngIf="!loading && filteredMovies.length === 0" class="empty-state">
+            <p class="empty-icon">🎬</p>
+            <p>No titles matched your search query or filters.</p>
+          </div>
+
+          <div class="movies-grid">
+            <div *ngFor="let movie of getPaginatedMovies()" class="movie-card" (click)="openMovieDetail(movie)">
+              <div class="poster-wrapper">
+                <img 
+                  [src]="getPosterUrl(movie)" 
+                  [alt]="movie.title"
+                  class="movie-poster"
+                  loading="lazy"
+                  (error)="onImageError($event)"
+                />
+                
+                <div class="overlay">
+                  <div class="overlay-actions">
+                    <button 
+                      *ngIf="!isAdmin"
+                      class="btn-overlay-favorite" 
+                      [ngClass]="{ 'favorited': isFavorite(movie.id) }"
+                      (click)="toggleFavorite(movie.id); $event.stopPropagation()" 
+                      title="Add to Favorites">
+                      {{ isFavorite(movie.id) ? '❤️' : '🤍' }}
+                    </button>
+                    <button class="btn-overlay-detail" (click)="openMovieDetail(movie); $event.stopPropagation()" title="View Details">
+                      ℹ️ Info
+                    </button>
+                  </div>
+
+                  <div *ngIf="isAdmin" class="action-buttons-admin">
+                    <button class="btn-action" (click)="onStartEditMovie(movie); $event.stopPropagation()">✏️ Edit</button>
+                    <button class="btn-danger" (click)="onDeleteMovie(movie.id); $event.stopPropagation()">🗑️ Delete</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="movie-info">
+                <h4 class="movie-title" [title]="movie.title">{{ movie.title }}</h4>
+                <div class="movie-meta">
+                  <span class="movie-year">{{ movie.release_year }}</span>
+                  <span class="movie-type-badge">{{ movie.type }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div *ngIf="!loading && filteredMovies.length > 0" class="pagination-container">
+            <button 
+              class="btn-pagination" 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1">
+              ← Previous
+            </button>
+            
+            <div class="pagination-info">
+              Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
+              <span class="pagination-details">({{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, totalMovies) }} of {{ totalMovies }})</span>
+            </div>
+
+            <div class="pagination-buttons">
+              <button 
+                *ngFor="let page of getPages()" 
+                class="btn-page" 
+                [ngClass]="{ 'active': page === currentPage }"
+                (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            </div>
+            
+            <button 
+              class="btn-pagination" 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages">
+              Next →
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Movie Detail Modal -->
+<div *ngIf="selectedMovieForDetail" class="modal-overlay detail-modal-overlay" (click)="closeMovieDetail()">
+  <div class="modal-card detail-modal" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeMovieDetail()">✕</button>
+    
+    <div class="detail-container">
+      <!-- Poster Section -->
+      <div class="detail-poster-section">
+        <img 
+          [src]="getPosterUrl(selectedMovieForDetail)" 
+          [alt]="selectedMovieForDetail.title"
+          class="detail-poster"
+          (error)="onImageError($event)"
+        />
+        <button 
+          class="btn-favorite-large" 
+          [ngClass]="{ 'favorited': isFavorite(selectedMovieForDetail.id) }"
+          (click)="toggleFavorite(selectedMovieForDetail.id)">
+          {{ isFavorite(selectedMovieForDetail.id) ? '❤️ Remove from Favorites' : '🤍 Add to Favorites' }}
+        </button>
+      </div>
+
+      <!-- Info Section -->
+      <div class="detail-info-section">
+        <h2 class="detail-title">{{ selectedMovieForDetail.title }}</h2>
+        
+        <div class="detail-meta">
+          <span class="meta-item">
+            <strong>Type:</strong> {{ selectedMovieForDetail.type }}
+          </span>
+          <span class="meta-item">
+            <strong>Year:</strong> {{ selectedMovieForDetail.release_year }}
+          </span>
+          <span class="meta-item">
+            <strong>Rating:</strong> {{ selectedMovieForDetail.rating || 'N/A' }}
+          </span>
+          <span class="meta-item">
+            <strong>Duration:</strong> {{ selectedMovieForDetail.duration || 'N/A' }}
+          </span>
+          <span class="meta-item">
+            <strong>Country:</strong> {{ selectedMovieForDetail.country || 'N/A' }}
+          </span>
+        </div>
+
+        <div class="detail-section">
+          <h3>Director</h3>
+          <p>{{ selectedMovieForDetail.director || 'N/A' }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Cast</h3>
+          <p>{{ selectedMovieForDetail.cast || 'N/A' }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Genres</h3>
+          <p>{{ selectedMovieForDetail.listed_in || 'N/A' }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Description</h3>
+          <p class="description-text">{{ selectedMovieForDetail.description || 'No description available.' }}</p>
+        </div>
+
+        <!-- Admin Actions -->
+        <div *ngIf="isAdmin" class="detail-admin-actions">
+          <button class="btn-action" (click)="onStartEditMovie(selectedMovieForDetail)">✏️ Edit Movie</button>
+          <button class="btn-danger" (click)="onDeleteMovie(selectedMovieForDetail.id)">🗑️ Delete Movie</button>
+        </div>
+
+        <button class="btn-close-detail" (click)="closeMovieDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PACK POPUP MODAL (When clicking a Pack Cover) ══ -->
+<div *ngIf="openedPackModal" class="modal-overlay pack-modal-overlay" (click)="closePackModal($event)">
+  <div class="modal-card pack-popup-modal" (click)="$event.stopPropagation()">
+    <div class="pack-popup-header">
+      <div>
+        <span class="single-pack-badge">PACK COLLECTION</span>
+        <h3>{{ openedPackModal.name }}</h3>
+        <p class="pack-popup-sub">{{ openedPackModal.movies?.length || 0 }} Movies & TV Shows inside</p>
+      </div>
+      <button class="btn-close-pack-modal" (click)="closePackModal()">✕</button>
+    </div>
+
+    <div class="pack-popup-grid">
+      <div *ngFor="let movie of openedPackModal.movies" class="pack-movie-card" (click)="openMovieDetail(movie)">
+        <div class="pack-movie-poster-wrap">
+          <img [src]="getPosterUrl(movie)" class="pack-movie-poster" loading="lazy" (error)="onImageError($event)" />
+          <div class="pack-movie-overlay">
+            <button *ngIf="!isAdmin" class="btn-overlay-favorite small"
+                    [ngClass]="{ 'favorited': isFavorite(movie.id) }"
+                    (click)="$event.stopPropagation(); toggleFavorite(movie.id)">
+              {{ isFavorite(movie.id) ? '❤️' : '🤍' }}
+            </button>
+          </div>
+        </div>
+        <div class="pack-movie-meta">
+          <span class="pack-movie-title">{{ movie.title }}</span>
+          <span class="pack-movie-year">{{ movie.release_year }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

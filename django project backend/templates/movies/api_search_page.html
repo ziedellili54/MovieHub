@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search API for Movies</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #e50914;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+        .search-box {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 24px 28px;
+            max-width: 680px;
+            margin: 0 auto 30px auto;
+            box-shadow: 0 4px 20px rgba(229,9,20,0.15);
+        }
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+        .search-row input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            background: #252545;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .search-row input[type="text"]:focus { border-color: #e50914; }
+        .btn-search {
+            padding: 12px 24px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-search:hover { background: #c40812; transform: scale(1.02); }
+
+        /* Message banners */
+        .msg { max-width: 760px; margin: 0 auto 20px auto; padding: 14px 18px; border-radius: 8px; font-size: 0.97rem; }
+        .msg-success { background: #1a3d2b; color: #5fdb8a; border: 1px solid #2d6a47; }
+        .msg-warning  { background: #3b2a10; color: #f5c842; border: 1px solid #7a5c20; }
+        .msg-info     { background: #1a1a3e; color: #8aadff; border: 1px solid #2d3f7a; }
+
+        /* Results */
+        .results-header {
+            max-width: 760px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .results-header h3 { color: #ccc; font-size: 1.1rem; }
+        .btn-add-selected {
+            padding: 10px 22px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn-add-selected:hover { background: #1e7e34; }
+        .btn-add-selected:disabled { background: #444; cursor: not-allowed; }
+
+        .legend { max-width: 760px; margin: 0 auto 14px auto; font-size: 0.85rem; color: #888; }
+        .legend span { margin-right: 20px; }
+        .dot-green { display: inline-block; width: 11px; height: 11px; background: #28a745; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+        .dot-red   { display: inline-block; width: 11px; height: 11px; background: #e50914; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
+        .movie-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+        .movie-card {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+        .movie-card.available:hover { border-color: #28a745; background: #151528; }
+        .movie-card.available.selected { border-color: #28a745; background: #0d2317; }
+        .movie-card.already-saved {
+            background: #1f0a0a;
+            border-color: #e50914;
+            cursor: not-allowed;
+            opacity: 0.72;
+        }
+
+        .card-checkbox {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: #28a745;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .card-checkbox:disabled { cursor: not-allowed; }
+
+        .card-body { flex: 1; }
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .card-title.saved { color: #e50914; }
+        .card-meta { font-size: 0.82rem; color: #aaa; line-height: 1.6; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .badge-movie { background: #1a4fa0; color: #9ac0ff; }
+        .badge-show  { background: #6a1a8a; color: #e0a0ff; }
+        .badge-saved { background: #5a0a0a; color: #ff8888; }
+        .no-results { text-align: center; color: #888; margin-top: 40px; font-size: 1rem; }
+
+        /* Nav */
+        .nav-links { text-align: center; margin-top: 36px; }
+        .nav-links a {
+            color: #8aadff;
+            margin: 0 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #e50914; }
+    </style>
+</head>
+<body>
+    <h2>🎬 Search Netflix API</h2>
+    <p class="subtitle">Search for movies/shows on the API — tick the ones you want to save to your database</p>
+
+    <!-- Search Form -->
+    <form method="POST" id="searchForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="search">
+        <div class="search-box">
+            <div class="search-row">
+                <input type="text" name="title" id="titleInput"
+                       placeholder="Type a movie or show title…"
+                       value="{{ search_query }}" required>
+                <button type="submit" class="btn-search">🔍 Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Save Selected Form (hidden, submitted by JS) -->
+    <form method="POST" id="saveForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_selected">
+        <input type="hidden" name="title" value="{{ search_query }}">
+        <input type="hidden" name="selected_movies_json" id="selectedMoviesJson" value="[]">
+    </form>
+
+    <!-- Messages -->
+    {% if message %}
+        {% if "✅" in message %}
+            <div class="msg msg-success">{{ message }}</div>
+        {% elif "⚠" in message %}
+            <div class="msg msg-warning">{{ message }}</div>
+        {% else %}
+            <div class="msg msg-info">{{ message }}</div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Results -->
+    {% if api_results %}
+        <div class="results-header">
+            <h3>{{ api_results|length }} result{{ api_results|length|pluralize }} for "<em>{{ search_query }}</em>"</h3>
+            <button class="btn-add-selected" id="addSelectedBtn" onclick="saveSelected()" disabled>
+                ➕ Add Selected (0)
+            </button>
+        </div>
+
+        <div class="legend">
+            <span><span class="dot-green"></span> Available — click to select</span>
+            <span><span class="dot-red"></span> Already in your database</span>
+        </div>
+
+        <div class="movie-list" id="movieList">
+            {% for movie in api_results %}
+                {% if movie.already_saved %}
+                    <!-- Already saved — red, disabled -->
+                    <div class="movie-card already-saved" title="Already saved in your database">
+                        <input type="checkbox" class="card-checkbox" disabled>
+                        <div class="card-body">
+                            <div class="card-title saved">
+                                🔴 {{ movie.title }}
+                                <span class="badge badge-saved">Already Saved</span>
+                            </div>
+                            <div class="card-meta">
+                                {% if movie.type == "Movie" %}
+                                    <span class="badge badge-movie">Movie</span>
+                                {% else %}
+                                    <span class="badge badge-show">TV Show</span>
+                                {% endif %}
+                                {% if movie.release_year %}📅 {{ movie.release_year }} &nbsp;{% endif %}
+                                {% if movie.director %}🎬 {{ movie.director }} &nbsp;{% endif %}
+                                {% if movie.country %}🌍 {{ movie.country }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Available — can be selected -->
+                    <div class="movie-card available"
+                         data-movie='{"show_id":"{{ movie.show_id|escapejs }}","title":"{{ movie.title|escapejs }}","type":"{{ movie.type|escapejs }}","release_year":{% if movie.release_year %}{{ movie.release_year }}{% else %}null{% endif %},"director":"{{ movie.director|escapejs }}","cast":"{{ movie.cast|escapejs }}","country":"{{ movie.country|escapejs }}","rating":"{{ movie.rating|escapejs }}","duration":"{{ movie.duration|escapejs }}","listed_in":"{{ movie.listed_in|escapejs }}","description":"{{ movie.description|escapejs }}"}'
+                         onclick="toggleCard(this)">
+                        <input type="checkbox" class="card-checkbox movie-check" onclick="event.stopPropagation(); toggleCard(this.closest('.movie-card'))">
+                        {% if movie.poster and movie.poster != "N/A" %}
+                        <img src="{{ movie.poster }}" alt="{{ movie.title }}" style="width:54px;height:78px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+                        {% else %}
+                        <div style="width:54px;height:78px;background:#252545;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🎬</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="card-title">{{ movie.title }}</div>
+                            <div class="card-meta">
+                                {% if movie.type == "Movie" %}
+                                    <span class="badge badge-movie">Movie</span>
+                                {% else %}
+                                    <span class="badge badge-show">TV Show</span>
+                                {% endif %}
+                                {% if movie.release_year %}📅 {{ movie.release_year }} &nbsp;{% endif %}
+                                {% if movie.director %}🎬 {{ movie.director }} &nbsp;{% endif %}
+                                {% if movie.country %}🌍 {{ movie.country }}{% endif %}
+                                {% if movie.duration %} &nbsp;⏱ {{ movie.duration }}{% endif %}
+                                {% if movie.listed_in %}<br>🎭 {{ movie.listed_in }}{% endif %}
+                                {% if movie.description %}<br><span style="color:#bbb;font-size:0.8rem;">{{ movie.description|truncatechars:120 }}</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    {% elif searched %}
+        <p class="no-results">😕 No results found on the API for "<strong>{{ search_query }}</strong>".</p>
+    {% endif %}
+
+    <div class="nav-links">
+        <a href="/movies-page/">🎬 My Movies</a>
+        <a href="/add-movie-page/">➕ Add Manually</a>
+        <a href="/search-movie/">🔍 Search DB</a>
+        <a href="/fetch-page/">📥 Fetch by Year</a>
+    </div>
+
+    <script>
+        // Toggle card selection
+        function toggleCard(card) {
+            if (card.classList.contains('already-saved')) return;
+            const checkbox = card.querySelector('.card-checkbox');
+            const isSelected = card.classList.toggle('selected');
+            checkbox.checked = isSelected;
+            updateAddButton();
+        }
+
+        // Count selected and update the Add button
+        function updateAddButton() {
+            const selected = document.querySelectorAll('.movie-card.available.selected');
+            const btn = document.getElementById('addSelectedBtn');
+            btn.disabled = selected.length === 0;
+            btn.textContent = `➕ Add Selected (${selected.length})`;
+        }
+
+        // Collect selected movies data and submit save form
+        function saveSelected() {
+            const selected = document.querySelectorAll('.movie-card.available.selected');
+            if (selected.length === 0) return;
+
+            const movies = [];
+            selected.forEach(card => {
+                try {
+                    movies.push(JSON.parse(card.dataset.movie));
+                } catch(e) {}
+            });
+
+            document.getElementById('selectedMoviesJson').value = JSON.stringify(movies);
+            document.getElementById('saveForm').submit();
+        }
+    </script>
+</body>
+</html>

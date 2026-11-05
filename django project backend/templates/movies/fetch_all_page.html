@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fetch All Years</title>
+</head>
+<body>
+    <h2>Fetch All Movies (1950 - 2026)</h2>
+    <p>This will loop through every year from 1950 to 2026 and save all movies found. This may take a minute.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Fetch All Years Now</button>
+    </form>
+
+    {% if message %}
+        <p style="color:green;">{{ message }}</p>
+        <a href="/movies-page/">Go to Movies List</a>
+    {% endif %}
+
+    <br>
+    <a href="/fetch-page/">Back to single-year fetch</a>
+</body>
+</html>

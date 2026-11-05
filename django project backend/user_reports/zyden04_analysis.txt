@@ -1,0 +1,41 @@
+================================================================================
+🎬 USER ANALYSIS REPORT: ZYDEN04
+================================================================================
+Generated: 2026-08-03 10:10:37
+
+📋 PROFILE OVERVIEW
+--------------------------------------------------------------------------------
+Username:          zyden04
+Total Movies Watched: 0
+Favorite Movies:      0
+Watch History Items:  0
+
+🎭 GENRE PREFERENCES
+--------------------------------------------------------------------------------
+  No genre preferences recorded yet
+
+📺 WATCHED MOVIES
+--------------------------------------------------------------------------------
+  No movies watched yet - Fresh account!
+
+❤️ FAVORITE MOVIES
+--------------------------------------------------------------------------------
+  No favorites yet
+
+🤖 AI RECOMMENDATION INSIGHTS
+--------------------------------------------------------------------------------
+Status: NEW USER
+
+AI Strategy:
+  → Show popular movies across all genres
+  → Wait for user interactions to build profile
+  → Track initial preferences for personalization
+
+📊 RECOMMENDATION QUALITY
+--------------------------------------------------------------------------------
+AI Confidence Score: 0% (No data yet)
+Prediction Quality: COLD START - Using popular defaults
+
+================================================================================
+End of Report for zyden04
+================================================================================

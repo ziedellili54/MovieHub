@@ -1,0 +1,2003 @@
+<!-- Modern Streaming Platform Dashboard -->
+<div class="streaming-platform">
+  
+  <!-- TOP NAVIGATION (Both User & Admin) -->
+  <nav class="top-nav" [class.scrolled]="false">
+    <div class="nav-container">
+      <!-- Logo & Brand -->
+      <div class="nav-left">
+        <div class="brand-logo">
+          <span class="logo-icon">🎬</span>
+          <span class="logo-text">MovieHub</span>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <div class="nav-menu">
+          <a class="nav-item" 
+             [class.active]="activeView === 'home'" 
+             (click)="setActiveView('home')">
+            Accueil
+          </a>
+          <a class="nav-item" 
+             [class.active]="activeView === 'movies'" 
+             (click)="setActiveView('movies')">
+            Films
+          </a>
+          <a class="nav-item" 
+             [class.active]="activeView === 'tv'" 
+             (click)="setActiveView('tv')">
+            Séries
+          </a>
+          
+          <!-- Favorites (User only, not admin) -->
+          <a *ngIf="!isAdmin" 
+             class="nav-item" 
+             [class.active]="activeView === 'favorites'" 
+             (click)="setActiveView('favorites')">
+            Favoris
+          </a>
+          
+          <!-- Admin Panel Link (Admin only) -->
+          <a *ngIf="isAdmin" 
+             class="nav-item admin-link" 
+             (click)="showAdminPanel = !showAdminPanel">
+            🎬 Admin
+          </a>
+        </div>
+      </div>
+      
+      <!-- Search & User -->
+      <div class="nav-right">
+        <!-- Combined Search (Name + Genre) with Genre Dropdown -->
+        <div class="search-container" [class.focused]="searchFocused">
+          <input 
+            type="text" 
+            class="search-input"
+            [(ngModel)]="combinedSearchQuery"
+            (input)="onCombinedSearch()"
+            (focus)="searchFocused = true"
+            (blur)="onSearchBlur()"
+            placeholder="Rechercher un film, série ou genre..." />
+          
+          <!-- Genre Dropdown (shows on focus) -->
+          <div *ngIf="searchFocused" class="search-dropdown">
+            
+            <!-- Movie/Show Suggestions (when typing) -->
+            <div *ngIf="combinedSearchQuery.trim().length >= 2" class="search-dropdown-section">
+              <h4 class="search-dropdown-title">
+                {{ loadingSuggestions ? 'Recherche...' : 'Suggestions' }}
+              </h4>
+              
+              <!-- Loading State -->
+              <div *ngIf="loadingSuggestions" class="search-loading">
+                <div class="spinner-small"></div>
+              </div>
+              
+              <!-- Movie Suggestions -->
+              <div *ngIf="!loadingSuggestions && searchSuggestions.length > 0" class="search-suggestions-list">
+                <a *ngFor="let movie of searchSuggestions" 
+                   class="search-suggestion-item"
+                   (mousedown)="selectSearchSuggestion(movie)">
+                  <img [src]="getPosterUrl(movie)" 
+                       [alt]="movie.title"
+                       (error)="onImageError($event)"
+                       class="suggestion-poster">
+                  <div class="suggestion-info">
+                    <div class="suggestion-title">{{ movie.title }}</div>
+                    <div class="suggestion-meta">
+                      <span class="suggestion-type">{{ movie.type }}</span>
+                      <span class="suggestion-dot">à</span>
+                      <span class="suggestion-year">{{ movie.release_year }}</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              
+              <!-- No Results -->
+              <div *ngIf="!loadingSuggestions && searchSuggestions.length === 0" class="search-no-results">
+                Aucun résultat pour "{{ combinedSearchQuery }}"
+              </div>
+            </div>
+            
+            <!-- Genre Categories (when not typing or showing as additional option) -->
+            <!-- REMOVED: Genre dropdown was not working properly -->
+            
+            <!-- All genres (when expanded) -->
+            <!-- REMOVED: Genre dropdown was not working properly -->
+          </div>
+        </div>
+        
+        <!-- User Profile -->
+        <div class="user-profile">
+          <span class="username">{{ username }}</span>
+          <button class="btn-logout" (click)="onLogout()">Se déconnecter</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- PACK DETAIL VIEW (Full Page) -->
+  <!-- ------------------------------------------------------------------- -->
+  <div *ngIf="showPackDetail && packDetailData" class="pack-detail-page">
+    <div class="pack-detail-header">
+      <button class="back-button" (click)="closePackDetail()">
+        ← Retour
+      </button>
+      <div class="pack-detail-title-section">
+        <h1 class="pack-detail-title">
+          <span *ngIf="packDetailData.type === 'ai'">⭐</span>
+          <span *ngIf="packDetailData.type === 'trending'">🔥</span>
+          <span *ngIf="packDetailData.type === 'continue'">▶️</span>
+          <span *ngIf="packDetailData.type === 'custom'">📦</span>
+          {{ packDetailData.name }}
+        </h1>
+        <p class="pack-detail-subtitle">
+          {{ packDetailData.movies?.length || 0 }} films
+          <span *ngIf="packDetailData.level"> à Niveau {{ packDetailData.level }}</span>
+          <span *ngIf="packDetailData.genres && packDetailData.genres.length > 0"> à {{ packDetailData.genres.join(', ') }}</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Movies Grid (Like your 2nd photo) -->
+    <div class="pack-detail-grid">
+      <div *ngFor="let movie of packDetailData.movies" 
+           class="pack-detail-movie-card" 
+           (click)="openMovieDetail(movie)">
+        
+        <!-- Movie Poster -->
+        <div class="pack-detail-poster-container">
+          <img 
+            [src]="getPosterUrl(movie)" 
+            [alt]="movie.title || movie.movie_title"
+            (error)="onImageError($event)"
+            class="pack-detail-poster">
+          
+          <!-- Play Overlay -->
+          <div class="pack-detail-play-overlay">
+            <div class="play-button">▶️</div>
+          </div>
+          
+          <!-- Badges -->
+          <div *ngIf="packDetailData.type === 'ai'" class="pack-detail-badge">⭐</div>
+          <div *ngIf="packDetailData.type === 'trending'" class="pack-detail-badge trending">🔥</div>
+          <div *ngIf="packDetailData.type === 'custom'" class="pack-detail-badge custom">🎯 Lvl {{ packDetailData.level }}</div>
+          
+          <!-- Progress (for continue watching) -->
+          <div *ngIf="packDetailData.type === 'continue' && (movie.watch_percentage || movie.watching_percentage)" 
+               class="pack-detail-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="movie.watch_percentage || movie.watching_percentage">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Movie Info -->
+        <div class="pack-detail-info">
+          <h3 class="pack-detail-movie-title">{{ movie.title || movie.movie_title }}</h3>
+          
+          <!-- IMDB Rating -->
+          <div class="pack-detail-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+            <span class="rating-icon">⭐</span>
+            <span class="rating-score">{{ movie.imdb_rating }}</span>
+            <span class="rating-max">/10</span>
+          </div>
+          
+          <div class="pack-detail-meta">
+            <span class="pack-detail-year">{{ movie.release_year }}</span>
+            <span class="pack-detail-dot">à</span>
+            <span class="pack-detail-type">{{ movie.type || movie.movie_type }}</span>
+          </div>
+          <div class="pack-detail-genres" *ngIf="movie.listed_in || movie.genres">
+            <span class="genre-badge primary-genre">
+              {{ movie.primary_category || (movie.listed_in || movie.genres)?.split(',')[0]?.trim() }}
+            </span>
+            <span *ngIf="(movie.listed_in || movie.genres)?.split(',')[1]" 
+                  class="genre-badge secondary-genre">
+              {{ (movie.listed_in || movie.genres)?.split(',')[1]?.trim() }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- MAIN DASHBOARD (Hidden when pack detail is shown) -->
+  <!-- ------------------------------------------------------------------- -->
+  <div *ngIf="!showPackDetail">
+
+  <!-- HERO SECTION (Home view only) -->
+  <section *ngIf="activeView === 'home' && featuredMovie" class="hero-section">
+    <div class="hero-backdrop" [style.backgroundImage]="'url(' + getPosterUrl(featuredMovie) + ')'"></div>
+    <div class="hero-gradient"></div>
+    
+    <div class="hero-content">
+      <div class="hero-badges">
+        <span class="hero-badge">{{ featuredMovie.type }}</span>
+        <span class="hero-badge">{{ featuredMovie.release_year }}</span>
+        <span class="hero-badge" *ngIf="featuredMovie.rating && featuredMovie.rating !== 'N/A'">
+          {{ featuredMovie.rating }}
+        </span>
+      </div>
+      
+      <h1 class="hero-title">{{ featuredMovie.title }}</h1>
+      
+      <p class="hero-description" *ngIf="featuredMovie.description">
+        {{ featuredMovie.description }}
+      </p>
+      
+      <div class="hero-meta" *ngIf="featuredMovie.listed_in">
+        <span class="hero-genres">{{ featuredMovie.listed_in }}</span>
+      </div>
+      
+      <div class="hero-actions">
+        <button class="btn-hero-play" (click)="openMovieDetail(featuredMovie)">
+          ▶️ Regarder
+        </button>
+        <button 
+          *ngIf="!isAdmin"
+          class="btn-hero-favorite" 
+          [class.favorited]="isFavorite(featuredMovie.id)"
+          (click)="toggleFavorite(featuredMovie.id)">
+          {{ isFavorite(featuredMovie.id) ? '❤️ Retirer des favoris' : '🤍 Ajouter aux favoris' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTINUE WATCHING SECTION (Home view only) - HORIZONTAL CAROUSEL -->
+  <section *ngIf="activeView === 'home' && continueWatchingMovies.length > 0 && !searchQuery && !combinedSearchQuery" class="pack-section">
+    <div class="section-container">
+      <!-- Pack Header -->
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">▶️</span>
+            Continuer à regarder
+          </h2>
+          <p class="pack-subtitle">Reprendre là où vous vous êtes arrêté</p>
+        </div>
+        <button *ngIf="continueWatchingMovies.length > ITEMS_PER_PAGE" 
+                class="view-all-btn"
+                (click)="viewAllPack('Continue Watching', 'continue')">
+          Tout voir →
+        </button>
+      </div>
+      
+      <!-- Carousel Container -->
+      <div class="carousel-wrapper">
+        <!-- Left Arrow -->
+        <button *ngIf="canScrollLeft('continue')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('continue')">
+          ‹
+        </button>
+        
+        <!-- Movies Row -->
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('continue', continueWatchingMovies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)"
+               style="cursor: pointer;">
+            
+            <!-- Movie Poster -->
+            <div class="carousel-poster-container">
+              <img 
+                [src]="getPosterUrl(movie)" 
+                [alt]="movie.movie_title || movie.title"
+                (error)="onImageError($event)"
+                (click)="openMovieDetail(movie)"
+                class="carousel-poster"
+                style="cursor: pointer;">
+              
+              <!-- Play Overlay -->
+              <div class="carousel-play-overlay"
+                   (click)="openMovieDetail(movie)"
+                   style="cursor: pointer; pointer-events: all;">
+                <div class="play-button">▶️</div>
+              </div>
+              
+              <!-- Progress Bar -->
+              <div class="progress-container">
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="getMovieWatchingPercentage(movie.movie_id || movie.id)"
+                       [style.background-color]="getProgressColor(getMovieWatchingPercentage(movie.movie_id || movie.id))">
+                  </div>
+                </div>
+                <span class="progress-text">{{ getMovieWatchingPercentage(movie.movie_id || movie.id) | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+            
+            <!-- Movie Info -->
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.movie_title || movie.title }}</h3>
+              <div class="carousel-meta">
+                <span class="carousel-type">{{ movie.movie_type || movie.type }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-time">{{ getTimeRemaining(getMovieWatchingPercentage(movie.movie_id || movie.id)) }} restant</span>
+              </div>
+              <!-- Genres -->
+              <div class="carousel-genres" *ngIf="movie.genres || movie.listed_in">
+                <span class="genre-badge primary-genre">
+                  {{ movie.primary_category || (movie.genres || movie.listed_in)?.split(',')[0]?.trim() }}
+                </span>
+                <span *ngIf="(movie.genres || movie.listed_in)?.split(',')[1]" 
+                      class="genre-badge secondary-genre">
+                  {{ (movie.genres || movie.listed_in)?.split(',')[1]?.trim() }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- View All Card (shown as last item after all pages) -->
+          <div *ngIf="continueWatchingMovies.length > ITEMS_PER_PAGE && !canScrollRight('continue', continueWatchingMovies)" 
+               class="carousel-item view-all-card"
+               (click)="viewAllPack('Continue Watching', 'continue')">
+            <div class="view-all-content">
+              <div class="view-all-icon">👁️</div>
+              <h3>Voir tout</h3>
+              <p>{{ continueWatchingMovies.length }} films</p>
+              <div class="view-all-arrow">→</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Arrow -->
+        <button *ngIf="canScrollRight('continue', continueWatchingMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('continue', continueWatchingMovies)">
+          ›
+        </button>
+      </div>
+      
+      <!-- Loading State -->
+      <div *ngIf="loadingContinueWatching" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDATIONS SECTION (Home view only) - HORIZONTAL CAROUSEL -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery" class="pack-section">
+    <div class="section-container">
+      <!-- Pack Header -->
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">⭐</span>
+            Recommandé pour vous
+          </h2>
+          <p class="pack-subtitle">Sélectionné selon vos goûts</p>
+        </div>
+        <button *ngIf="recommendedMovies.length > ITEMS_PER_PAGE" 
+                class="view-all-btn"
+                (click)="viewAllPack('Recommendations', 'ai')">
+          Tout voir →
+        </button>
+      </div>
+      
+      <!-- Loading State (Hidden - shows skeleton instead) -->
+      <div *ngIf="loadingRecommendations" class="carousel-skeleton">
+        <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]"></div>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="!loadingRecommendations && recommendedMovies.length === 0" class="empty-state">
+        <p>Aucune recommandation disponible</p>
+      </div>
+      
+      <!-- Carousel Container -->
+      <div *ngIf="!loadingRecommendations && recommendedMovies.length > 0" class="carousel-wrapper">
+        <!-- Left Arrow -->
+        <button *ngIf="canScrollLeft('ai')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('ai')">
+          ‹
+        </button>
+        
+        <!-- Movies Row -->
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('ai', recommendedMovies); let i = index" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie, 'ai_recommendations', i)"
+               style="cursor: pointer;">
+            
+            <!-- Movie Poster - CLICK HERE -->
+            <div class="carousel-poster-container">
+              <img 
+                [src]="getPosterUrl(movie)" 
+                [alt]="movie.title"
+                (error)="onImageError($event)"
+                (click)="openMovieDetail(movie, 'ai_recommendations', i)"
+                class="carousel-poster"
+                style="cursor: pointer;">
+              
+              <!-- Play Overlay -->
+              <div class="carousel-play-overlay" 
+                   (click)="openMovieDetail(movie, 'ai_recommendations', i)"
+                   style="cursor: pointer; pointer-events: all;">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            
+            <!-- Movie Info -->
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+              <!-- Genres -->
+              <div class="carousel-genres" *ngIf="movie.genres || movie.listed_in">
+                <span class="genre-badge primary-genre">
+                  {{ movie.primary_category || (movie.genres || movie.listed_in)?.split(',')[0]?.trim() }}
+                </span>
+                <span *ngIf="(movie.genres || movie.listed_in)?.split(',')[1]" 
+                      class="genre-badge secondary-genre">
+                  {{ (movie.genres || movie.listed_in)?.split(',')[1]?.trim() }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- View All Card -->
+          <div *ngIf="recommendedMovies.length > ITEMS_PER_PAGE && !canScrollRight('ai', recommendedMovies)" 
+               class="carousel-item view-all-card"
+               (click)="viewAllPack('Recommendations', 'ai')">
+            <div class="view-all-content">
+              <div class="view-all-icon">?</div>
+              <h3>Voir tout</h3>
+              <p>{{ recommendedMovies.length }} films</p>
+              <div class="view-all-arrow">→</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Arrow -->
+        <button *ngIf="canScrollRight('ai', recommendedMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('ai', recommendedMovies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TRENDING & POPULAR SECTION - HORIZONTAL CAROUSEL -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery" class="pack-section">
+    <div class="section-container">
+      <!-- Pack Header -->
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🔥</span>
+            Tendances & Populaires
+          </h2>
+          <p class="pack-subtitle">Les nouvelles sorties les plus populaires</p>
+        </div>
+        <button *ngIf="trendingMovies.length > ITEMS_PER_PAGE" 
+                class="view-all-btn"
+                (click)="viewAllPack('Trending', 'trending')">
+          Tout voir →
+        </button>
+      </div>
+      
+      <!-- Loading State (Hidden - shows skeleton instead) -->
+      <div *ngIf="loadingTrending" class="carousel-skeleton">
+        <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]"></div>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="!loadingTrending && trendingMovies.length === 0" class="empty-state">
+        <p>Aucune tendance disponible</p>
+      </div>
+      
+      <!-- Carousel Container -->
+      <div *ngIf="!loadingTrending && trendingMovies.length > 0" class="carousel-wrapper">
+        <!-- Left Arrow -->
+        <button *ngIf="canScrollLeft('trending')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('trending')">
+          ‹
+        </button>
+        
+        <!-- Movies Row -->
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('trending', trendingMovies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)"
+               style="cursor: pointer;">
+            
+            <!-- Movie Poster -->
+            <div class="carousel-poster-container">
+              <img 
+                [src]="getPosterUrl(movie)" 
+                [alt]="movie.title"
+                (error)="onImageError($event)"
+                (click)="openMovieDetail(movie)"
+                class="carousel-poster"
+                style="cursor: pointer;">
+              
+              <!-- Play Overlay -->
+              <div class="carousel-play-overlay"
+                   (click)="openMovieDetail(movie)"
+                   style="cursor: pointer; pointer-events: all;">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            
+            <!-- Movie Info -->
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+              <!-- Genres -->
+              <div class="carousel-genres" *ngIf="movie.genres || movie.listed_in">
+                <span class="genre-badge primary-genre">
+                  {{ movie.primary_category || (movie.genres || movie.listed_in)?.split(',')[0]?.trim() }}
+                </span>
+                <span *ngIf="(movie.genres || movie.listed_in)?.split(',')[1]" 
+                      class="genre-badge secondary-genre">
+                  {{ (movie.genres || movie.listed_in)?.split(',')[1]?.trim() }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- View All Card -->
+          <div *ngIf="trendingMovies.length > ITEMS_PER_PAGE && !canScrollRight('trending', trendingMovies)" 
+               class="carousel-item view-all-card"
+               (click)="viewAllPack('Trending', 'trending')">
+            <div class="view-all-content">
+              <div class="view-all-icon">👁️</div>
+              <h3>Voir tout</h3>
+              <p>{{ trendingMovies.length }} films</p>
+              <div class="view-all-arrow">→</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Arrow -->
+        <button *ngIf="canScrollRight('trending', trendingMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('trending', trendingMovies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP WATCHED MOVIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && topWatchedMovies.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🎬</span>
+            Films les plus regardés
+          </h2>
+          <p class="pack-subtitle">Les films préférés de tous les utilisateurs</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('topWatchedMovies')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('topWatchedMovies')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('topWatchedMovies', topWatchedMovies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('topWatchedMovies', topWatchedMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('topWatchedMovies', topWatchedMovies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP WATCHED SERIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && topWatchedSeries.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">📺</span>
+            Séries les plus regardées
+          </h2>
+          <p class="pack-subtitle">Les séries préférées de tous les utilisateurs</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('topWatchedSeries')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('topWatchedSeries')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('topWatchedSeries', topWatchedSeries)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('topWatchedSeries', topWatchedSeries)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('topWatchedSeries', topWatchedSeries)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- NEWLY ADDED MOVIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && newlyAddedMovies.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🆕</span>
+            Nouveaux films ajoutés
+          </h2>
+          <p class="pack-subtitle">Les derniers films ajoutés à notre catalogue</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('newlyAddedMovies')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('newlyAddedMovies')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('newlyAddedMovies', newlyAddedMovies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('newlyAddedMovies', newlyAddedMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('newlyAddedMovies', newlyAddedMovies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- NEWLY ADDED SERIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && newlyAddedSeries.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🆕</span>
+            Nouvelles Séries ajoutées
+          </h2>
+          <p class="pack-subtitle">Les dernières Séries ajoutées à notre catalogue</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('newlyAddedSeries')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('newlyAddedSeries')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('newlyAddedSeries', newlyAddedSeries)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('newlyAddedSeries', newlyAddedSeries)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('newlyAddedSeries', newlyAddedSeries)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP 20 FAVORITES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && top20Favorites.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">❤️</span>
+            Top 20 Favoris
+          </h2>
+          <p class="pack-subtitle">Les films les plus aimés par notre communauté</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('top20Favorites')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('top20Favorites')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('top20Favorites', top20Favorites)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('top20Favorites', top20Favorites)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('top20Favorites', top20Favorites)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP 10 MOVIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && top10Movies.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🏆</span>
+            Top 10 Films
+          </h2>
+          <p class="pack-subtitle">Les 10 meilleurs films selon nos utilisateurs</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('top10Movies')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('top10Movies')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('top10Movies', top10Movies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('top10Movies', top10Movies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('top10Movies', top10Movies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP 10 SERIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && top10Series.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🏆</span>
+            Top 10 Séries
+          </h2>
+          <p class="pack-subtitle">Les 10 meilleures Séries selon nos utilisateurs</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('top10Series')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('top10Series')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('top10Series', top10Series)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('top10Series', top10Series)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('top10Series', top10Series)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP SEARCHED MOVIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && topSearchedMovies.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🔍</span>
+            Films les plus recherchés
+          </h2>
+          <p class="pack-subtitle">Ce que tout le monde cherche en ce moment</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('topSearchedMovies')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('topSearchedMovies')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('topSearchedMovies', topSearchedMovies)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('topSearchedMovies', topSearchedMovies)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('topSearchedMovies', topSearchedMovies)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- -->
+  <!-- TOP SEARCHED SERIES SECTION -->
+  <!-- ------------------------------------------------------------------- -->
+  <section *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery && topSearchedSeries.length > 0" class="pack-section">
+    <div class="section-container">
+      <div class="pack-header">
+        <div class="pack-title-group">
+          <h2 class="pack-title">
+            <span class="title-icon">🔍</span>
+            Séries les plus recherchées
+          </h2>
+          <p class="pack-subtitle">Les Séries les plus populaires en recherche</p>
+        </div>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <button *ngIf="canScrollLeft('topSearchedSeries')" 
+                class="carousel-arrow carousel-arrow-left"
+                (click)="scrollPackLeft('topSearchedSeries')">
+          ‹
+        </button>
+        
+        <div class="carousel-track">
+          <div *ngFor="let movie of getCarouselItems('topSearchedSeries', topSearchedSeries)" 
+               class="carousel-item"
+               (click)="openMovieDetail(movie)">
+            <div class="carousel-poster-container">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" (error)="onImageError($event)" class="carousel-poster">
+              <div class="carousel-play-overlay">
+                <div class="play-button">▶️</div>
+              </div>
+            </div>
+            <div class="carousel-info">
+              <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+              
+              <!-- IMDB Rating -->
+              <div class="carousel-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="carousel-meta">
+                <span class="carousel-year">{{ movie.release_year }}</span>
+                <span class="carousel-dot">à</span>
+                <span class="carousel-type">{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button *ngIf="canScrollRight('topSearchedSeries', topSearchedSeries)" 
+                class="carousel-arrow carousel-arrow-right"
+                (click)="scrollPackRight('topSearchedSeries', topSearchedSeries)">
+          ›
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" [class.has-hero]="activeView === 'home' && featuredMovie">
+    
+    <!-- Toast Messages -->
+    <div *ngIf="successMessage" class="toast success" (click)="successMessage = ''">
+      {{ successMessage }}
+      <span class="close">&times;</span>
+    </div>
+    <div *ngIf="errorMessage" class="toast error" (click)="errorMessage = ''">
+      {{ errorMessage }}
+      <span class="close">&times;</span>
+    </div>
+
+    <!-- ADMIN PANEL (Slide-in sidebar when admin clicks Admin button) -->
+    <div *ngIf="isAdmin && showAdminPanel" class="admin-sidebar" (click)="showAdminPanel = false">
+      <div class="admin-sidebar-content" (click)="$event.stopPropagation()">
+        <div class="admin-sidebar-header">
+          <h2>éé Panneau Admin</h2>
+          <button class="btn-close-sidebar" (click)="showAdminPanel = false">×</button>
+        </div>
+        
+        <div class="admin-sidebar-body">
+          
+          <!-- Sync Netflix Data -->
+          <div class="admin-card">
+            <h3>🔄 Sync Netflix Data</h3>
+            <p class="admin-card-desc">Fetch movies and TV shows from Netflix API</p>
+            <div class="admin-form-group">
+              <select [(ngModel)]="fetchType" class="admin-input">
+                <option value="TV Show">TV Shows</option>
+                <option value="Movie">Movies</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <select [(ngModel)]="fetchYear" class="admin-input">
+                <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+              </select>
+            </div>
+            <button class="admin-btn" (click)="onFetchMovies()" [disabled]="loading">
+              🔄 Sync
+            </button>
+          </div>
+
+          <!-- Add Custom Movie -->
+          <div class="admin-card">
+            <h3>? Add Custom Movie</h3>
+            <form (ngSubmit)="onAddMovie()" class="admin-form">
+              <div class="admin-form-group">
+                <label>Title *</label>
+                <input type="text" [(ngModel)]="newMovie.title" name="title" class="admin-input" required />
+              </div>
+              <div class="admin-form-group">
+                <label>Type</label>
+                <select [(ngModel)]="newMovie.type" name="type" class="admin-input">
+                  <option value="Movie">Movie</option>
+                  <option value="TV Show">TV Show</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label>Year</label>
+                <select [(ngModel)]="newMovie.release_year" name="year" class="admin-input">
+                  <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label>Genre</label>
+                <input type="text" [(ngModel)]="newMovie.listed_in" name="genre" class="admin-input" placeholder="Action, Drama, ..." />
+              </div>
+              <div class="admin-form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="newMovie.description" name="desc" class="admin-input" rows="3"></textarea>
+              </div>
+              
+              <!-- Poster Upload/URL -->
+              <div class="admin-form-group">
+                <label>Poster Image</label>
+                <div class="poster-input-options">
+                  <div class="poster-option">
+                    <label class="poster-option-label">
+                      <input type="radio" name="posterType" value="url" [(ngModel)]="posterInputType" />
+                      URL
+                    </label>
+                    <input 
+                      *ngIf="posterInputType === 'url'"
+                      type="url" 
+                      [(ngModel)]="newMovie.poster" 
+                      name="posterUrl" 
+                      class="admin-input" 
+                      placeholder="https://example.com/poster.jpg" />
+                  </div>
+                  
+                  <div class="poster-option">
+                    <label class="poster-option-label">
+                      <input type="radio" name="posterType" value="file" [(ngModel)]="posterInputType" />
+                      Browse File
+                    </label>
+                    <input 
+                      *ngIf="posterInputType === 'file'"
+                      type="file" 
+                      accept="image/*"
+                      (change)="onPosterFileSelected($event)"
+                      class="admin-input-file" />
+                  </div>
+                </div>
+                
+                <!-- Poster Preview -->
+                <div *ngIf="newMovie.poster" class="poster-preview">
+                  <img [src]="newMovie.poster" alt="Poster preview" />
+                  <button type="button" class="btn-remove-poster" (click)="removePoster()">?</button>
+                </div>
+              </div>
+              
+              <button type="submit" class="admin-btn" [disabled]="!isAddFormValid()">
+                💾 Save Movie
+              </button>
+            </form>
+          </div>
+
+          <!-- Search OMDb -->
+          <div class="admin-card">
+            <h3>🔍 Search OMDb API</h3>
+            <p class="admin-card-desc">Search and import from OMDb</p>
+            <div class="admin-form-group">
+              <input 
+                type="text" 
+                [(ngModel)]="omdbSearchQuery" 
+                class="admin-input" 
+                placeholder="Search title..."
+                (keyup.enter)="onSearchOMDb()" />
+            </div>
+            <button class="admin-btn" (click)="onSearchOMDb()" [disabled]="omdbSearching">
+              🔍 Search
+            </button>
+            
+            <!-- OMDb Results -->
+            <div *ngIf="omdbResults.length > 0" class="omdb-results">
+              <div *ngFor="let item of omdbResults; trackBy: trackByShowId" class="omdb-result-item">
+                <input 
+                  type="checkbox" 
+                  [checked]="item.selected" 
+                  [disabled]="item.already_saved"
+                  (change)="toggleOmdbItem(item)" />
+                <span class="omdb-result-title">{{ item.title }} ({{ item.release_year }})</span>
+                <span *ngIf="item.already_saved" class="omdb-already-saved">? In DB</span>
+              </div>
+              <button 
+                class="admin-btn" 
+                (click)="onSaveSelectedOMDb()" 
+                [disabled]="!hasSelectedOMDbItems() || omdbSaving">
+                📥 Import Selected
+              </button>
+            </div>
+          </div>
+
+          <!-- User Management -->
+          <div class="admin-card">
+            <h3>👥 User Management</h3>
+            <div class="admin-user-list">
+              <div *ngFor="let user of users" class="admin-user-item">
+                <span class="admin-user-name">{{ user.username }}</span>
+                <span class="admin-user-role" [class.admin-role]="user.role === 'admin'">
+                  {{ user.role }}
+                </span>
+                <button 
+                  *ngIf="user.role !== 'admin'" 
+                  class="admin-btn-delete-small"
+                  (click)="onDeleteUser(user.id)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pack Builder -->
+          <div class="admin-card" id="pack-builder-card">
+            <h3>📦 {{ editingPack ? 'Edit Pack' : 'Create Pack' }}</h3>
+            <p class="admin-card-desc">Organize movies into themed collections</p>
+            
+            <div class="admin-form-group">
+              <label>Pack Name *</label>
+              <input type="text" [(ngModel)]="packBuilder.name" class="admin-input" placeholder="e.g., Action Movies, Marvel Universe..." />
+            </div>
+            
+            <div class="admin-form-group">
+              <label>Level</label>
+              <input type="number" [(ngModel)]="packBuilder.level" min="1" class="admin-input" />
+            </div>
+
+            <!-- Genre Selection -->
+            <div class="admin-form-group">
+              <label>Select Genres</label>
+              <div class="genre-chips">
+                <button 
+                  *ngFor="let genre of genresList.slice(0, 20)" 
+                  type="button"
+                  class="genre-chip"
+                  [class.selected]="isGenreSelected(genre)"
+                  (click)="toggleGenreSelection(genre)">
+                  {{ genre }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Year Selection -->
+            <div class="admin-form-group">
+              <label>Select Years (optional)</label>
+              <div class="year-chips">
+                <button 
+                  *ngFor="let year of yearsList.slice(0, 10)" 
+                  type="button"
+                  class="year-chip"
+                  [class.selected]="isYearSelected(year)"
+                  (click)="toggleYearSelection(year)">
+                  {{ year }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Button -->
+            <button 
+              class="admin-btn admin-btn-secondary" 
+              (click)="onPreviewPack()" 
+              [disabled]="packPreviewing || (!packBuilder.selectedGenres.length && !packBuilder.selectedYears.length)">
+              {{ packPreviewing ? '⏳ Loading...' : '🗑️ Preview Movies' }}
+            </button>
+
+            <!-- Preview Results -->
+            <div *ngIf="packPreviewResults.length > 0" class="pack-preview">
+              <div class="pack-preview-header">
+                <h4>{{ packPreviewResults.length }} movies found</h4>
+                <button type="button" class="btn-select-all" (click)="onSelectAllPackItems()">
+                  {{ packBuilder.selectedMovieIds.length === packPreviewResults.length ? 'Deselect All' : 'Select All' }}
+                </button>
+              </div>
+              
+              <div class="pack-preview-grid">
+                <div 
+                  *ngFor="let item of packPreviewResults" 
+                  class="pack-preview-item"
+                  [class.selected]="isPackItemSelected(item.id)"
+                  (click)="togglePackPreviewItem(item)">
+                  <img [src]="getPosterUrl(item)" [alt]="item.title" class="pack-preview-poster" />
+                  <div class="pack-preview-info">
+                    <span class="pack-preview-title">{{ item.title }}</span>
+                    <span class="pack-preview-year">{{ item.release_year }}</span>
+                  </div>
+                  <div class="pack-preview-checkbox">
+                    <input type="checkbox" [checked]="isPackItemSelected(item.id)" readonly />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Pack Button -->
+            <div class="pack-actions">
+              <button 
+                class="admin-btn" 
+                (click)="onSavePack()" 
+                [disabled]="!packBuilder.name || !packBuilder.selectedMovieIds.length || packSaving">
+                {{ packSaving ? '💾 Saving...' : (editingPack ? '📦 Update Pack' : '📦 Create Pack') }}
+              </button>
+              <button 
+                *ngIf="editingPack"
+                type="button"
+                class="admin-btn admin-btn-secondary" 
+                (click)="cancelEditPack()">
+                ? Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Existing Packs -->
+          <div class="admin-card" *ngIf="packs.length > 0">
+            <h3>📦 Existing Packs ({{ packs.length }})</h3>
+            <div class="packs-list">
+              <div *ngFor="let pack of packs" class="pack-item">
+                <div class="pack-item-header">
+                  <h4 class="pack-item-name">{{ pack.name }}</h4>
+                  <span class="pack-item-badge">Level {{ pack.level }}</span>
+                </div>
+                <div class="pack-item-meta">
+                  <span>{{ pack.movies?.length || 0 }} movies</span>
+                  <span *ngIf="pack.genres">{{ pack.genres.join(', ') }}</span>
+                </div>
+                <div class="pack-item-actions">
+                  <button class="btn-pack-action" (click)="onEditPack(pack)" title="Edit">✏️</button>
+                  <button class="btn-pack-action" (click)="onMovePackLevel(pack, 'up')" title="Move Up" [disabled]="pack.level === 1">⬆️</button>
+                  <button class="btn-pack-action" (click)="onMovePackLevel(pack, 'down')" title="Move Down">⬇️</button>
+                  <button class="btn-pack-action btn-pack-delete" (click)="onDeletePack(pack.id, pack.name)" title="Delete">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- API Browser Tool -->
+          <div class="admin-card">
+            <h3>🌐 API Browser</h3>
+            <p class="admin-card-desc">Browse and import movies from external APIs</p>
+            <button class="admin-btn admin-btn-secondary" (click)="navigateToApiBrowser()">
+              🌐 Open API Browser
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MOVIES GRID -->
+    <div class="content-container">
+      
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <span *ngIf="activeView === 'home' && !searchQuery && !combinedSearchQuery">En vedette</span>
+          <span *ngIf="activeView === 'home' && (searchQuery || combinedSearchQuery)">
+            🔍 résultats de recherche: "{{ searchQuery || combinedSearchQuery }}"
+          </span>
+          <span *ngIf="activeView === 'movies'">Films</span>
+          <span *ngIf="activeView === 'tv'">Séries TV</span>
+          <span *ngIf="activeView === 'favorites'">Mes Favoris</span>
+        </h2>
+        <div class="section-right">
+          <span class="section-count">{{ totalMovies }} titres</span>
+          <button *ngIf="searchQuery || combinedSearchQuery" 
+                  class="btn-clear-search" 
+                  (click)="clearSearch()">
+            ? Effacer la recherche
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters (subtle) -->
+      <div class="filters-bar" *ngIf="activeView !== 'favorites'">
+        <select [(ngModel)]="selectedType" (change)="applyFilters()" class="filter-select">
+          <option value="">Tous les types</option>
+          <option value="Movie">Films</option>
+          <option value="TV Show">Séries</option>
+        </select>
+        
+        <select [(ngModel)]="selectedGenre" (change)="applyFilters()" class="filter-select">
+          <option value="">Tous les genres</option>
+          <option *ngFor="let genre of genresList" [value]="genre">{{ genre }}</option>
+        </select>
+        
+        <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select">
+          <option value="title-asc">Titre (A-Z)</option>
+          <option value="title-desc">Titre (Z-A)</option>
+          <option value="year-desc">Plus ràcents</option>
+          <option value="year-asc">Plus anciens</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="spinner-container">
+        <div class="spinner"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && filteredMovies.length === 0" class="empty-state">
+        <p class="empty-icon">🎬</p>
+        <h3>Aucun titre trouvé</h3>
+        <p>Essayez de modifier vos filtres de recherche</p>
+      </div>
+
+      <!-- PACKS SECTION (Custom Packs - Carousel Style) -->
+      <section *ngFor="let pack of filteredPacks; let packIndex = index" 
+               [hidden]="showFavoritesOnly || activeView !== 'home' || searchQuery || combinedSearchQuery"
+               class="pack-section">
+        <div class="section-container">
+          <!-- Pack Header -->
+          <div class="pack-header">
+            <div class="pack-title-group">
+              <h2 class="pack-title">
+                <span class="title-icon">📦</span>
+                {{ pack.name }}
+              </h2>
+              <p class="pack-subtitle">
+                Niveau {{ pack.level }} à {{ (pack.movies?.length || 0) }} films
+                <span *ngIf="pack.genres && pack.genres.length > 0"> à {{ pack.genres.join(', ') }}</span>
+              </p>
+            </div>
+            <button class="view-all-btn"
+                    (click)="viewAllPack(pack.name, 'custom', pack.id)">
+              Tout voir →
+            </button>
+          </div>
+          
+          <!-- Carousel Container -->
+          <div class="carousel-wrapper" *ngIf="pack.movies && pack.movies.length > 0">
+            <!-- Left Arrow -->
+            <button *ngIf="canScrollLeft('pack_' + packIndex)" 
+                    class="carousel-arrow carousel-arrow-left"
+                    (click)="scrollPackLeft('pack_' + packIndex)">
+              ‹
+            </button>
+            
+            <!-- Movies Row -->
+            <div class="carousel-track">
+              <div *ngFor="let movie of getCarouselItems('pack_' + packIndex, pack.movies)" 
+                   class="carousel-item"
+                   (click)="openMovieDetail(movie)">
+                
+                <!-- Movie Poster -->
+                <div class="carousel-poster-container">
+                  <img 
+                    [src]="getPosterUrl(movie)" 
+                    [alt]="movie.title"
+                    (error)="onImageError($event)"
+                    class="carousel-poster">
+                  
+                  <!-- Pack Badge -->
+                  <div class="pack-level-badge">🎯 Lvl {{ pack.level }}</div>
+                  
+                  <!-- Play Overlay -->
+                  <div class="carousel-play-overlay">
+                    <div class="play-button">▶️</div>
+                  </div>
+                </div>
+                
+                <!-- Movie Info -->
+                <div class="carousel-info">
+                  <h3 class="carousel-movie-title">{{ movie.title }}</h3>
+                  <div class="carousel-meta">
+                    <span class="carousel-year">{{ movie.release_year }}</span>
+                    <span class="carousel-dot">à</span>
+                    <span class="carousel-type">{{ movie.type }}</span>
+                  </div>
+                  <div class="carousel-genres" *ngIf="movie.listed_in">
+                    <span class="genre-badge primary-genre">
+                      {{ getPrimaryGenre(movie) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- View All Card -->
+              <div *ngIf="pack.movies.length > ITEMS_PER_PAGE && !canScrollRight('pack_' + packIndex, pack.movies)" 
+                   class="carousel-item view-all-card"
+                   (click)="viewAllPack(pack.name, 'custom', pack.id)">
+                <div class="view-all-content">
+                  <div class="view-all-icon">👁️</div>
+                  <h3>Voir tout</h3>
+                  <p>{{ pack.movies.length }} films</p>
+                  <div class="view-all-arrow">→</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Arrow -->
+            <button *ngIf="canScrollRight('pack_' + packIndex, pack.movies)" 
+                    class="carousel-arrow carousel-arrow-right"
+                    (click)="scrollPackRight('pack_' + packIndex, pack.movies)">
+              ›
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Movies Grid -->
+      <div class="movies-grid">
+        <div *ngFor="let movie of getPaginatedMovies()" class="movie-card" (click)="openMovieDetail(movie)">
+          <div class="movie-poster-container">
+            <img 
+              [src]="getPosterUrl(movie)" 
+              [alt]="movie.title"
+              class="movie-poster"
+              loading="lazy"
+              (error)="onImageError($event)" />
+            
+            <!-- Hover Overlay -->
+            <div class="movie-overlay">
+              <!-- Favorite & Dislike buttons - User only -->
+              <div *ngIf="!isAdmin" class="user-actions-overlay">
+                <button 
+                  class="btn-favorite-overlay" 
+                  [class.favorited]="isFavorite(movie.id)"
+                  (click)="$event.stopPropagation(); toggleFavorite(movie.id)">
+                  {{ isFavorite(movie.id) ? '❤️' : '��' }}
+                </button>
+                <button 
+                  class="btn-dislike-overlay" 
+                  (click)="$event.stopPropagation(); dislikeMovie(movie, $event)">
+                  àà
+                </button>
+              </div>
+              
+              <!-- Admin Actions -->
+              <div *ngIf="isAdmin" class="admin-actions-overlay">
+                <button class="btn-edit-overlay" (click)="$event.stopPropagation(); onStartEditMovie(movie)">✏️</button>
+                <button class="btn-delete-overlay" (click)="$event.stopPropagation(); onDeleteMovie(movie.id)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Movie Info -->
+          <div class="movie-info">
+            <h4 class="movie-title">{{ movie.title }}</h4>
+            
+            <!-- IMDB Rating Badge -->
+            <div class="movie-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+              <span class="rating-icon">⭐</span>
+              <span class="rating-score">{{ movie.imdb_rating }}</span>
+              <span class="rating-max">/10</span>
+              <span class="rating-votes" *ngIf="movie.imdb_votes && movie.imdb_votes > 0">
+                ({{ formatVotes(movie.imdb_votes) }})
+              </span>
+            </div>
+            
+            <div class="movie-meta">
+              <span class="movie-year">{{ movie.release_year }}</span>
+              <span class="movie-type">{{ movie.type }}</span>
+            </div>
+            <div class="movie-genres" *ngIf="movie.listed_in">
+              <!-- Primary Category -->
+              <span class="genre-badge primary-genre">
+                {{ getPrimaryGenre(movie) }}
+              </span>
+              <!-- Secondary Genres -->
+              <span *ngFor="let genre of getSecondaryGenres(movie)" class="genre-badge secondary-genre">
+                {{ genre }}
+              </span>
+            </div>
+            
+            <!-- Watch Progress Bar (only show if > 0%) -->
+            <div class="watch-progress-container" *ngIf="getMovieWatchingPercentage(movie.id) > 0">
+              <div class="watch-progress-bar" 
+                   [style.width.%]="getMovieWatchingPercentage(movie.id)"
+                   [style.background-color]="getProgressColor(getMovieWatchingPercentage(movie.id))">
+              </div>
+              <span class="watch-progress-text">{{ getMovieWatchingPercentage(movie.id) }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!loading && filteredMovies.length > 0" class="pagination">
+        <button class="btn-page" (click)="previousPage()" [disabled]="currentPage === 1">
+          ? Pràcàdent
+        </button>
+        
+        <div class="page-info">
+          Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages }}</strong>
+        </div>
+        
+        <div class="page-numbers">
+          <button 
+            *ngFor="let page of getPages()" 
+            class="btn-page-num" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        </div>
+        
+        <button class="btn-page" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Suivant ?
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MOVIE DETAIL MODAL -->
+  <div *ngIf="showMovieModal && selectedMovieForDetail" class="modal-backdrop" (click)="closeMovieDetail()">
+    <div class="modal-detail-fullwidth" (click)="$event.stopPropagation()">
+      
+      <!-- Close Button -->
+      <button class="modal-close-top" (click)="closeMovieDetail()">×</button>
+      
+      <!-- Hero Section with Backdrop -->
+      <div class="detail-hero">
+        <div class="detail-hero-backdrop" [style.backgroundImage]="'url(' + getPosterUrl(selectedMovieForDetail) + ')'"></div>
+        <div class="detail-hero-gradient"></div>
+        
+        <div class="detail-hero-content">
+          <div class="detail-hero-left">
+            <img 
+              [src]="getPosterUrl(selectedMovieForDetail)" 
+              [alt]="selectedMovieForDetail.title"
+              class="detail-hero-poster"
+              (error)="onImageError($event)" />
+          </div>
+          
+          <div class="detail-hero-right">
+            <h1 class="detail-hero-title">{{ selectedMovieForDetail.title }}</h1>
+            
+            <!-- IMDB Rating - Large Display -->
+            <div class="detail-rating-large" *ngIf="selectedMovieForDetail.imdb_rating && selectedMovieForDetail.imdb_rating > 0">
+              <span class="detail-rating-icon">⭐</span>
+              <span class="detail-rating-score">{{ selectedMovieForDetail.imdb_rating }}</span>
+              <span class="detail-rating-max">/10</span>
+              <span class="detail-rating-label">IMDB</span>
+              <span class="detail-rating-votes" *ngIf="selectedMovieForDetail.imdb_votes && selectedMovieForDetail.imdb_votes > 0">
+                ({{ formatVotes(selectedMovieForDetail.imdb_votes) }} votes)
+              </span>
+            </div>
+            
+            <div class="detail-hero-meta">
+              <span class="detail-meta-badge">{{ selectedMovieForDetail.type }}</span>
+              <span class="detail-meta-badge">{{ selectedMovieForDetail.release_year }}</span>
+              <span class="detail-meta-badge" *ngIf="selectedMovieForDetail.rating && selectedMovieForDetail.rating !== 'N/A'">
+                {{ selectedMovieForDetail.rating }}
+              </span>
+              <span class="detail-meta-badge" *ngIf="selectedMovieForDetail.duration && selectedMovieForDetail.duration !== 'N/A'">
+                {{ selectedMovieForDetail.duration }}
+              </span>
+            </div>
+            
+            <p class="detail-hero-description" *ngIf="selectedMovieForDetail.description">
+              {{ selectedMovieForDetail.description }}
+            </p>
+            
+            <div class="detail-hero-info" *ngIf="selectedMovieForDetail.listed_in">
+              <strong>Genres:</strong>
+              <div class="detail-genre-badges">
+                <span *ngFor="let genre of selectedMovieForDetail.listed_in.split(',')" class="detail-genre-badge">
+                  {{ genre.trim() }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="detail-hero-info" *ngIf="selectedMovieForDetail.director && selectedMovieForDetail.director !== 'N/A'">
+              <strong>Ràalisateur:</strong> {{ selectedMovieForDetail.director }}
+            </div>
+            
+            <div class="detail-hero-info" *ngIf="selectedMovieForDetail.cast && selectedMovieForDetail.cast !== 'N/A'">
+              <strong>Acteurs:</strong> {{ selectedMovieForDetail.cast }}
+            </div>
+            
+            <div class="detail-hero-actions">
+              <button class="btn-detail-play">
+                ▶️ Regarder
+              </button>
+              <button 
+                *ngIf="!isAdmin"
+                class="btn-detail-favorite" 
+                [class.favorited]="isFavorite(selectedMovieForDetail.id)"
+                (click)="toggleFavorite(selectedMovieForDetail.id)">
+                {{ isFavorite(selectedMovieForDetail.id) ? '❤️ Dans mes favoris' : '🤍 Ajouter aux favoris' }}
+              </button>
+              <button 
+                *ngIf="!isAdmin"
+                class="btn-detail-dislike" 
+                (click)="dislikeMovie(selectedMovieForDetail, $event)">
+                👎 Pas pour moi
+              </button>
+            </div>
+            
+            <!-- Watch Progress Bar in Detail Modal -->
+            <div class="detail-watch-progress-container">
+              <div class="detail-watch-progress-header">
+                <span class="detail-progress-label">Progression de visionnage</span>
+                <div class="detail-progress-edit">
+                  <input 
+                    type="number" 
+                    class="detail-progress-input"
+                    [value]="getMovieWatchingPercentage(selectedMovieForDetail.id)"
+                    (change)="onWatchingPercentageChange(selectedMovieForDetail.id, $event)"
+                    min="0"
+                    max="100"
+                    placeholder="0" />
+                  <span class="detail-progress-percent">%</span>
+                </div>
+              </div>
+              
+              <div class="detail-watch-progress-bar-wrapper">
+                <div class="detail-watch-progress-bar" 
+                     [style.width.%]="getMovieWatchingPercentage(selectedMovieForDetail.id)"
+                     [style.background-color]="getProgressColor(getMovieWatchingPercentage(selectedMovieForDetail.id))">
+                </div>
+              </div>
+              
+              <span class="detail-progress-text">{{ getMovieWatchingPercentage(selectedMovieForDetail.id) }}% regardà</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Similar Movies Section -->
+      <div class="detail-similar-section">
+        <h2 class="detail-similar-title">Films similaires</h2>
+        
+        <!-- Loading -->
+        <div *ngIf="loadingSimilar" class="detail-similar-loading">
+          <div class="spinner"></div>
+        </div>
+        
+        <!-- Similar Movies Grid -->
+        <div *ngIf="!loadingSimilar && similarMovies.length > 0" class="detail-similar-grid">
+          <div *ngFor="let movie of similarMovies" class="similar-movie-card" (click)="openMovieDetail(movie)">
+            <div class="similar-poster-wrapper">
+              <img 
+                [src]="getPosterUrl(movie)" 
+                [alt]="movie.title"
+                class="similar-poster"
+                loading="lazy"
+                (error)="onImageError($event)" />
+              
+              <div class="similar-overlay">
+                <button 
+                  *ngIf="!isAdmin"
+                  class="btn-similar-favorite" 
+                  [class.favorited]="isFavorite(movie.id)"
+                  (click)="$event.stopPropagation(); toggleFavorite(movie.id)">
+                  {{ isFavorite(movie.id) ? '❤️' : '��' }}
+                </button>
+              </div>
+            </div>
+            
+            <div class="similar-info">
+              <h4 class="similar-title">{{ movie.title }}</h4>
+              
+              <!-- IMDB Rating -->
+              <div class="similar-rating" *ngIf="movie.imdb_rating && movie.imdb_rating > 0">
+                <span class="rating-icon">⭐</span>
+                <span class="rating-score">{{ movie.imdb_rating }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              
+              <div class="similar-meta">
+                <span>{{ movie.release_year }}</span>
+                <span>{{ movie.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Similar Movies -->
+        <div *ngIf="!loadingSimilar && similarMovies.length === 0" class="detail-similar-empty">
+          <p>Aucun film similaire trouvé</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- EDIT MOVIE MODAL (Admin) -->
+  <div *ngIf="editingMovie" class="modal-backdrop" (click)="onCancelEditMovie()">
+    <div class="modal-edit" (click)="$event.stopPropagation()">
+      <h3>✏️ Modifier: {{ editingMovie.title }}</h3>
+      <form (ngSubmit)="onSaveEditMovie()" class="edit-form">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" [(ngModel)]="editingMovie.title" name="edit_title" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="editingMovie.type" name="edit_type" class="form-input">
+            <option value="Movie">Movie</option>
+            <option value="TV Show">TV Show</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Annàe</label>
+          <select [(ngModel)]="editingMovie.release_year" name="edit_year" class="form-input">
+            <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Genre</label>
+          <input type="text" [(ngModel)]="editingMovie.listed_in" name="edit_genre" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editingMovie.description" name="edit_desc" class="form-input" rows="4"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">💾 Sauvegarder</button>
+          <button type="button" class="btn-secondary" (click)="onCancelEditMovie()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER (StarzPlay Style) -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      
+      <!-- Social Media Icons -->
+      <div class="footer-social">
+        <span class="social-icon" aria-label="Facebook">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </span>
+        <span class="social-icon" aria-label="Twitter/X">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </span>
+        <span class="social-icon" aria-label="Instagram">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </span>
+        <span class="social-icon" aria-label="YouTube">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </span>
+        <span class="social-icon" aria-label="TikTok">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+          </svg>
+        </span>
+        <span class="social-icon" aria-label="Threads">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717-1.384 1.723-2.083 4.301-2.108 7.716v.014c.026 3.409.723 5.984 2.108 7.716 1.431 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.956 1.191-2.352 1.794-4.15 1.794-1.798 0-3.194-.602-4.15-1.794-.662-.826-1.092-1.92-1.284-3.272-.192-1.352-.096-2.78.287-4.258.383-1.478 1.05-2.784 1.987-3.894.937-1.11 2.145-1.965 3.603-2.548 1.458-.584 3.073-.876 4.81-.876s3.352.292 4.81.876c1.458.583 2.666 1.438 3.603 2.548.937 1.11 1.604 2.416 1.987 3.894.383 1.478.479 2.906.287 4.258-.192 1.352-.622 2.446-1.284 3.272-.956 1.191-2.352 1.794-4.15 1.794-1.798 0-3.194-.602-4.15-1.794-.662-.826-1.092-1.92-1.284-3.272-.192-1.352-.096-2.78.287-4.258.383-1.478 1.05-2.784 1.987-3.894.937-1.11 2.145-1.965 3.603-2.548 1.458-.584 3.073-.876 4.81-.876z"/>
+          </svg>
+        </span>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="footer-nav">
+        <div class="footer-nav-section">
+          <a href="#" class="footer-link">Why MovieHub?</a>
+          <a href="#" class="footer-link">Live</a>
+          <a href="#" class="footer-link">Watch Free</a>
+          <a href="#" class="footer-link">Sports</a>
+          <a href="#" class="footer-link">ADMN</a>
+          <a href="#" class="footer-link">Films</a>
+          <a href="#" class="footer-link">Séries</a>
+          <a href="#" class="footer-link">Kids</a>
+        </div>
+        
+        <div class="footer-nav-section">
+          <a href="#" class="footer-link">FAQ</a>
+          <a href="#" class="footer-link">Terms & Conditions</a>
+          <a href="#" class="footer-link">Contact Us</a>
+          <a href="#" class="footer-link">Privacy Policy</a>
+          <a href="#" class="footer-link">About Us</a>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="footer-copyright">
+        <p>Copyright à 2026 MovieHub. All rights reserved.</p>
+      </div>
+
+      <!-- App Store Badges -->
+      <div class="footer-apps">
+        <a href="#" class="app-badge">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='135' height='40' viewBox='0 0 135 40'%3E%3Crect width='135' height='40' rx='5' fill='%23000'/%3E%3Ctext x='35' y='14' font-family='Arial' font-size='9' fill='%23fff'%3EDownload on the%3C/text%3E%3Ctext x='35' y='28' font-family='Arial' font-size='16' font-weight='bold' fill='%23fff'%3EApp Store%3C/text%3E%3Cpath d='M25 10l-3 5h6zm0 0l-5 10h10z' fill='%23fff'/%3E%3C/svg%3E" alt="Download on App Store" />
+        </a>
+        <a href="#" class="app-badge">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='135' height='40' viewBox='0 0 135 40'%3E%3Crect width='135' height='40' rx='5' fill='%23000'/%3E%3Ctext x='40' y='14' font-family='Arial' font-size='9' fill='%23fff'%3EGET IT ON%3C/text%3E%3Ctext x='40' y='28' font-family='Arial' font-size='16' font-weight='bold' fill='%23fff'%3EGoogle Play%3C/text%3E%3Cpath d='M18 12l8 8-8 8V12zm8 8l4-4v8z' fill='%234285f4'/%3E%3C/svg%3E" alt="Get it on Google Play" />
+        </a>
+        <a href="#" class="app-badge">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='135' height='40' viewBox='0 0 135 40'%3E%3Crect width='135' height='40' rx='5' fill='%23000'/%3E%3Ctext x='35' y='14' font-family='Arial' font-size='9' fill='%23fff'%3EDownload on%3C/text%3E%3Ctext x='35' y='28' font-family='Arial' font-size='14' font-weight='bold' fill='%23fff'%3EAppGallery%3C/text%3E%3Cpath d='M15 15h10v10H15z' fill='%23e60012'/%3E%3C/svg%3E" alt="Download on AppGallery" />
+        </a>
+      </div>
+
+    </div>
+  </footer>
+  
+  </div> <!-- Close main dashboard wrapper -->
+
+</div> <!-- Close streaming-platform -->
+
+

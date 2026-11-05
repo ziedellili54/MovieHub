@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Catalog - MovieApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e50914; /* Netflix Red */
+            --primary-hover: #b81d24;
+            --bg-dark: #141414; /* Netflix Dark background */
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-bg-hover: rgba(255, 255, 255, 0.1);
+            --text-light: #f5f6fa;
+            --text-muted: #808080;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Header Style */
+        header {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        header.scrolled {
+            background-color: #141414;
+        }
+
+        header h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-menu a {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-menu a:hover {
+            color: #b3b3b3;
+        }
+
+        /* Profile Dropdown in Top Right */
+        .profile-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            background-color: #2b90d9; /* Netflix Blue Avatar color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .profile-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background-color: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-width: 250px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            padding: 15px;
+            z-index: 1001;
+            font-size: 0.9rem;
+        }
+
+        .profile-container:hover .dropdown-menu {
+            display: flex;
+        }
+
+        .dropdown-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .dropdown-header .user-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: var(--text-light);
+        }
+
+        .dropdown-header .user-info {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            word-break: break-all;
+            margin-bottom: 4px;
+        }
+
+        .dropdown-item {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 8px 0;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            color: var(--primary);
+        }
+
+        /* Main Content Container */
+        .catalog-container {
+            padding: 120px 50px 50px 50px;
+        }
+
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .catalog-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Filter Form */
+        .filter-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-input {
+            background: #333;
+            border: none;
+            padding: 8px 15px;
+            color: white;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .filter-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .clear-btn {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* Movie Row / Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .movie-card {
+            background-color: #181818;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .movie-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .movie-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .movie-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: var(--text-light);
+        }
+
+        .movie-meta-row {
+            display: flex;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .movie-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .movie-desc {
+            font-size: 0.88rem;
+            color: #d2d2d2;
+            margin: 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-extra {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="header-left">
+            <h1 onclick="window.location.href='/movies-page/'">MovieApp</h1>
+            <div class="nav-menu">
+                <a href="/movies-page/">Browse</a>
+                <a href="/search-movie/">Local Search</a>
+                <a href="/api-search/">Global Search (OMDb)</a>
+            </div>
+        </div>
+
+        <div class="header-right">
+            {% if user_profile %}
+            <div class="profile-container">
+                <div class="profile-trigger">
+                    <div class="profile-avatar">{{ user_profile.username|slice:":1" }}</div>
+                    <span class="profile-name">{{ user_profile.username }}</span>
+                </div>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">
+                        <div class="user-title">{{ user_profile.username }}</div>
+                        <div class="user-info">📧 {{ user_profile.email }}</div>
+                    </div>
+                    {% if user_profile.username == "admin" %}
+                    <a href="/admin/" class="dropdown-item" style="color: #ff9f43;">🛠️ Admin Dashboard</a>
+                    {% endif %}
+                    <a href="/logout/" class="dropdown-item" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 5px;">🚪 Sign out of MovieApp</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/user/" class="filter-btn" style="text-decoration: none;">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="catalog-container">
+        
+        <div class="catalog-header">
+            <h2 class="catalog-title">
+                {% if selected_year %}
+                    Movies from {{ selected_year }}
+                {% else %}
+                    All Movies & Shows
+                {% endif %}
+            </h2>
+
+            <form method="GET" class="filter-form">
+                <input type="text" name="year" class="filter-input" placeholder="Filter by year..." value="{{ selected_year }}">
+                <button type="submit" class="filter-btn">Filter</button>
+                {% if selected_year %}
+                    <a href="/movies-page/" class="clear-btn">Clear Filter</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="movies-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    
+                    <div class="movie-meta-row">
+                        <span class="movie-badge">{{ movie.type }}</span>
+                        <span>{{ movie.release_year }}</span>
+                        {% if movie.duration %}
+                        <span>• {{ movie.duration }}</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="movie-desc">{{ movie.description|default:"No description available." }}</p>
+                    
+                    <div class="movie-extra">
+                        {% if movie.director and movie.director != "N/A" %}
+                        <div><strong>Director:</strong> {{ movie.director }}</div>
+                        {% endif %}
+                        {% if movie.listed_in %}
+                        <div style="margin-top: 4px;"><strong>Genre:</strong> {{ movie.listed_in }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: span 4; text-align: center; padding: 50px 0; color: var(--text-muted);">
+                <h3>No movies or shows found.</h3>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

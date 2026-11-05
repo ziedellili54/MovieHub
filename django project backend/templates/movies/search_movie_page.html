@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search My Movies</title>
+</head>
+<body>
+    <h2>Search My Saved Movies</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="search" value="1">
+        <label>Title:</label>
+        <input type="text" name="title"><br><br>
+        <label>Year (optional):</label>
+        <input type="text" name="year"><br><br>
+        <button type="submit">Search</button>
+    </form>
+
+    <hr>
+
+    {% if results %}
+        <h3>Results ({{ results|length }})</h3>
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>Title</th><th>Type</th><th>Year</th><th>Director</th>
+                <th>Cast</th><th>Country</th><th>Genre</th>
+            </tr>
+            {% for movie in results %}
+            <tr>
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.type }}</td>
+                <td>{{ movie.release_year }}</td>
+                <td>{{ movie.director }}</td>
+                <td>{{ movie.cast }}</td>
+                <td>{{ movie.country }}</td>
+                <td>{{ movie.listed_in }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% elif message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+    <br>
+    <a href="/movies-page/">Go to Movies List</a>
+</body>
+</html>

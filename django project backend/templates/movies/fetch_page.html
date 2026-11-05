@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fetch Movies</title>
+</head>
+<body>
+    <h2>Fetch Movies from API</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label>Year:</label><br>
+        <input type="text" name="year" value="2023"><br><br>
+        <label>Type:</label><br>
+        <input type="text" name="type" value="Movie"><br><br>
+        <button type="submit">Fetch & Save</button>
+    </form>
+
+    {% if message %}
+        <p style="color:green;">{{ message }}</p>
+        <a href="/movies-page/?year={{ fetched_year }}">Go to Movies List (filtered to this year)</a>
+    {% endif %}
+    <br>
+    <a href="/fetch-all/">Or fetch ALL years (1950-2026) at once</a>
+    <a href="/search-movie/">Search a specific movie by title/year</a>
+    <a href="/add-movie-page/">+ Add a movie manually</a>
+    <br>
+</body>
+</html>

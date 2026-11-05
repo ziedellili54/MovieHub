@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie - MovieApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-hover: #e84118;
+            --bg-dark: #0f0c20;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light: #f5f6fa;
+            --text-muted: #a4b0be;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top, #1e1b4b 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .edit-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(to right, #ff4757, #ff6b81);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button, a.btn-back {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        a.btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+
+        a.btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <h2>Edit Movie Details</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="title">Movie Title</label>
+                    <input type="text" id="title" name="title" value="{{ movie.title }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type">
+                        <option value="Movie" {% if movie.type == "Movie" %}selected{% endif %}>Movie</option>
+                        <option value="TV Show" {% if movie.type == "TV Show" %}selected{% endif %}>TV Show</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="release_year">Release Year</label>
+                    <input type="number" id="release_year" name="release_year" value="{{ movie.release_year }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="director">Director</label>
+                    <input type="text" id="director" name="director" value="{{ movie.director }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="{{ movie.country }}">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="cast">Cast</label>
+                    <input type="text" id="cast" name="cast" value="{{ movie.cast }}">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="listed_in">Genres (comma separated)</label>
+                    <input type="text" id="listed_in" name="listed_in" value="{{ movie.listed_in }}">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description">Description / Plot</label>
+                    <textarea id="description" name="description">{{ movie.description }}</textarea>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a href="/admin/" class="btn-back">Cancel</a>
+                <button type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

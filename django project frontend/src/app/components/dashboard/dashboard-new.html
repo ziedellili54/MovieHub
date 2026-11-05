@@ -1,0 +1,456 @@
+<!-- Modern Streaming Platform Dashboard -->
+<div class="streaming-platform">
+  
+  <!-- TOP NAVIGATION (Both User & Admin) -->
+  <nav class="top-nav" [class.scrolled]="false">
+    <div class="nav-container">
+      <!-- Logo & Brand -->
+      <div class="nav-left">
+        <div class="brand-logo">
+          <span class="logo-icon">🎬</span>
+          <span class="logo-text">MovieHub</span>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <div class="nav-menu">
+          <a class="nav-item" 
+             [class.active]="activeView === 'home'" 
+             (click)="setActiveView('home')">
+            Accueil
+          </a>
+          <a class="nav-item" 
+             [class.active]="activeView === 'movies'" 
+             (click)="setActiveView('movies')">
+            Films
+          </a>
+          <a class="nav-item" 
+             [class.active]="activeView === 'tv'" 
+             (click)="setActiveView('tv')">
+            Séries
+          </a>
+          <a class="nav-item" 
+             [class.active]="activeView === 'favorites'" 
+             (click)="setActiveView('favorites')">
+            Favoris
+          </a>
+          
+          <!-- Admin Panel Link (Admin only) -->
+          <a *ngIf="isAdmin" 
+             class="nav-item admin-link" 
+             (click)="showAdminPanel = !showAdminPanel">
+            ⚙️ Admin
+          </a>
+        </div>
+      </div>
+      
+      <!-- Search & User -->
+      <div class="nav-right">
+        <!-- Combined Search (Name + Genre) -->
+        <div class="search-container">
+          <input 
+            type="text" 
+            class="search-input"
+            [(ngModel)]="combinedSearchQuery"
+            (input)="onCombinedSearch()"
+            placeholder="Rechercher un film, série ou genre..." />
+          <span class="search-icon">🔍</span>
+        </div>
+        
+        <!-- User Profile -->
+        <div class="user-profile">
+          <span class="username">{{ username }}</span>
+          <button class="btn-logout" (click)="onLogout()">Se déconnecter</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION (Home view only) -->
+  <section *ngIf="activeView === 'home' && featuredMovie" class="hero-section">
+    <div class="hero-backdrop" [style.backgroundImage]="'url(' + getPosterUrl(featuredMovie) + ')'"></div>
+    <div class="hero-gradient"></div>
+    
+    <div class="hero-content">
+      <div class="hero-badges">
+        <span class="hero-badge">{{ featuredMovie.type }}</span>
+        <span class="hero-badge">{{ featuredMovie.release_year }}</span>
+        <span class="hero-badge" *ngIf="featuredMovie.rating && featuredMovie.rating !== 'N/A'">
+          {{ featuredMovie.rating }}
+        </span>
+      </div>
+      
+      <h1 class="hero-title">{{ featuredMovie.title }}</h1>
+      
+      <p class="hero-description" *ngIf="featuredMovie.description">
+        {{ featuredMovie.description }}
+      </p>
+      
+      <div class="hero-meta" *ngIf="featuredMovie.listed_in">
+        <span class="hero-genres">{{ featuredMovie.listed_in }}</span>
+      </div>
+      
+      <div class="hero-actions">
+        <button class="btn-hero-play" (click)="openMovieDetail(featuredMovie)">
+          ▶️ Regarder maintenant
+        </button>
+        <button 
+          class="btn-hero-favorite" 
+          [class.favorited]="isFavorite(featuredMovie.id)"
+          (click)="toggleFavorite(featuredMovie.id)">
+          {{ isFavorite(featuredMovie.id) ? '❤️ Retirer des favoris' : '🤍 Ajouter aux favoris' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" [class.has-hero]="activeView === 'home' && featuredMovie">
+    
+    <!-- Toast Messages -->
+    <div *ngIf="successMessage" class="toast success" (click)="successMessage = ''">
+      {{ successMessage }}
+      <span class="close">&times;</span>
+    </div>
+    <div *ngIf="errorMessage" class="toast error" (click)="errorMessage = ''">
+      {{ errorMessage }}
+      <span class="close">&times;</span>
+    </div>
+
+    <!-- ADMIN PANEL (Slide-in sidebar when admin clicks Admin button) -->
+    <div *ngIf="isAdmin && showAdminPanel" class="admin-sidebar" (click)="showAdminPanel = false">
+      <div class="admin-sidebar-content" (click)="$event.stopPropagation()">
+        <div class="admin-sidebar-header">
+          <h2>🛠️ Panneau Admin</h2>
+          <button class="btn-close-sidebar" (click)="showAdminPanel = false">✕</button>
+        </div>
+        
+        <div class="admin-sidebar-body">
+          
+          <!-- Sync Netflix Data -->
+          <div class="admin-card">
+            <h3>📡 Sync Netflix Data</h3>
+            <p class="admin-card-desc">Fetch movies and TV shows from Netflix API</p>
+            <div class="admin-form-group">
+              <select [(ngModel)]="fetchType" class="admin-input">
+                <option value="TV Show">TV Shows</option>
+                <option value="Movie">Movies</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <select [(ngModel)]="fetchYear" class="admin-input">
+                <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+              </select>
+            </div>
+            <button class="admin-btn" (click)="onFetchMovies()" [disabled]="loading">
+              🚀 Sync
+            </button>
+          </div>
+
+          <!-- Add Custom Movie -->
+          <div class="admin-card">
+            <h3>➕ Add Custom Movie</h3>
+            <form (ngSubmit)="onAddMovie()" class="admin-form">
+              <div class="admin-form-group">
+                <label>Title *</label>
+                <input type="text" [(ngModel)]="newMovie.title" name="title" class="admin-input" required />
+              </div>
+              <div class="admin-form-group">
+                <label>Type</label>
+                <select [(ngModel)]="newMovie.type" name="type" class="admin-input">
+                  <option value="Movie">Movie</option>
+                  <option value="TV Show">TV Show</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label>Year</label>
+                <select [(ngModel)]="newMovie.release_year" name="year" class="admin-input">
+                  <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label>Genre</label>
+                <input type="text" [(ngModel)]="newMovie.listed_in" name="genre" class="admin-input" placeholder="Action, Drama, ..." />
+              </div>
+              <div class="admin-form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="newMovie.description" name="desc" class="admin-input" rows="3"></textarea>
+              </div>
+              <button type="submit" class="admin-btn" [disabled]="!isAddFormValid()">
+                💾 Save Movie
+              </button>
+            </form>
+          </div>
+
+          <!-- Search OMDb -->
+          <div class="admin-card">
+            <h3>🔍 Search OMDb API</h3>
+            <p class="admin-card-desc">Search and import from OMDb</p>
+            <div class="admin-form-group">
+              <input 
+                type="text" 
+                [(ngModel)]="omdbSearchQuery" 
+                class="admin-input" 
+                placeholder="Search title..."
+                (keyup.enter)="onSearchOMDb()" />
+            </div>
+            <button class="admin-btn" (click)="onSearchOMDb()" [disabled]="omdbSearching">
+              🔎 Search
+            </button>
+            
+            <!-- OMDb Results -->
+            <div *ngIf="omdbResults.length > 0" class="omdb-results">
+              <div *ngFor="let item of omdbResults; trackBy: trackByShowId" class="omdb-result-item">
+                <input 
+                  type="checkbox" 
+                  [checked]="item.selected" 
+                  [disabled]="item.already_saved"
+                  (change)="toggleOmdbItem(item)" />
+                <span class="omdb-result-title">{{ item.title }} ({{ item.release_year }})</span>
+                <span *ngIf="item.already_saved" class="omdb-already-saved">✓ In DB</span>
+              </div>
+              <button 
+                class="admin-btn" 
+                (click)="onSaveSelectedOMDb()" 
+                [disabled]="!hasSelectedOMDbItems() || omdbSaving">
+                ⬇️ Import Selected
+              </button>
+            </div>
+          </div>
+
+          <!-- User Management -->
+          <div class="admin-card">
+            <h3>👥 User Management</h3>
+            <div class="admin-user-list">
+              <div *ngFor="let user of users" class="admin-user-item">
+                <span class="admin-user-name">{{ user.username }}</span>
+                <span class="admin-user-role" [class.admin-role]="user.role === 'admin'">
+                  {{ user.role }}
+                </span>
+                <button 
+                  *ngIf="user.role !== 'admin'" 
+                  class="admin-btn-delete-small"
+                  (click)="onDeleteUser(user.id)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MOVIES GRID -->
+    <div class="content-container">
+      
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <span *ngIf="activeView === 'home'">En vedette</span>
+          <span *ngIf="activeView === 'movies'">Films</span>
+          <span *ngIf="activeView === 'tv'">Séries TV</span>
+          <span *ngIf="activeView === 'favorites'">Mes Favoris</span>
+        </h2>
+        <span class="section-count">{{ totalMovies }} titres</span>
+      </div>
+
+      <!-- Filters (subtle) -->
+      <div class="filters-bar" *ngIf="activeView !== 'favorites'">
+        <select [(ngModel)]="selectedGenre" (change)="applyFilters()" class="filter-select">
+          <option value="">Tous les genres</option>
+          <option *ngFor="let genre of genresList" [value]="genre">{{ genre }}</option>
+        </select>
+        
+        <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select">
+          <option value="title-asc">Titre (A-Z)</option>
+          <option value="title-desc">Titre (Z-A)</option>
+          <option value="year-desc">Plus récents</option>
+          <option value="year-asc">Plus anciens</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="spinner-container">
+        <div class="spinner"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && filteredMovies.length === 0" class="empty-state">
+        <p class="empty-icon">🎬</p>
+        <h3>Aucun titre trouvé</h3>
+        <p>Essayez de modifier vos filtres de recherche</p>
+      </div>
+
+      <!-- Movies Grid -->
+      <div class="movies-grid">
+        <div *ngFor="let movie of getPaginatedMovies()" class="movie-card" (click)="openMovieDetail(movie)">
+          <div class="movie-poster-container">
+            <img 
+              [src]="getPosterUrl(movie)" 
+              [alt]="movie.title"
+              class="movie-poster"
+              loading="lazy"
+              (error)="onImageError($event)" />
+            
+            <!-- Hover Overlay -->
+            <div class="movie-overlay">
+              <button 
+                class="btn-favorite-overlay" 
+                [class.favorited]="isFavorite(movie.id)"
+                (click)="$event.stopPropagation(); toggleFavorite(movie.id)">
+                {{ isFavorite(movie.id) ? '❤️' : '🤍' }}
+              </button>
+              
+              <!-- Admin Actions -->
+              <div *ngIf="isAdmin" class="admin-actions-overlay">
+                <button class="btn-edit-overlay" (click)="$event.stopPropagation(); onStartEditMovie(movie)">
+                  ✏️
+                </button>
+                <button class="btn-delete-overlay" (click)="$event.stopPropagation(); onDeleteMovie(movie.id)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Movie Info -->
+          <div class="movie-info">
+            <h4 class="movie-title">{{ movie.title }}</h4>
+            <div class="movie-meta">
+              <span class="movie-year">{{ movie.release_year }}</span>
+              <span class="movie-type">{{ movie.type }}</span>
+            </div>
+            <div class="movie-genres" *ngIf="movie.listed_in">
+              {{ movie.listed_in.split(',')[0].trim() }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!loading && filteredMovies.length > 0" class="pagination">
+        <button class="btn-page" (click)="previousPage()" [disabled]="currentPage === 1">
+          ← Précédent
+        </button>
+        
+        <div class="page-info">
+          Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages }}</strong>
+        </div>
+        
+        <div class="page-numbers">
+          <button 
+            *ngFor="let page of getPages()" 
+            class="btn-page-num" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        </div>
+        
+        <button class="btn-page" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Suivant →
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MOVIE DETAIL MODAL -->
+  <div *ngIf="selectedMovieForDetail" class="modal-backdrop" (click)="closeMovieDetail()">
+    <div class="modal-detail" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeMovieDetail()">✕</button>
+      
+      <div class="modal-content-grid">
+        <div class="modal-poster-section">
+          <img 
+            [src]="getPosterUrl(selectedMovieForDetail)" 
+            [alt]="selectedMovieForDetail.title"
+            class="modal-poster"
+            (error)="onImageError($event)" />
+          
+          <button 
+            class="btn-modal-favorite" 
+            [class.favorited]="isFavorite(selectedMovieForDetail.id)"
+            (click)="toggleFavorite(selectedMovieForDetail.id)">
+            {{ isFavorite(selectedMovieForDetail.id) ? '❤️ Dans mes favoris' : '🤍 Ajouter aux favoris' }}
+          </button>
+        </div>
+        
+        <div class="modal-info-section">
+          <h2 class="modal-title">{{ selectedMovieForDetail.title }}</h2>
+          
+          <div class="modal-meta">
+            <span><strong>Type:</strong> {{ selectedMovieForDetail.type }}</span>
+            <span><strong>Année:</strong> {{ selectedMovieForDetail.release_year }}</span>
+            <span *ngIf="selectedMovieForDetail.rating && selectedMovieForDetail.rating !== 'N/A'">
+              <strong>Note:</strong> {{ selectedMovieForDetail.rating }}
+            </span>
+            <span *ngIf="selectedMovieForDetail.duration && selectedMovieForDetail.duration !== 'N/A'">
+              <strong>Durée:</strong> {{ selectedMovieForDetail.duration }}
+            </span>
+          </div>
+          
+          <div class="modal-section" *ngIf="selectedMovieForDetail.listed_in">
+            <h3>Genres</h3>
+            <p>{{ selectedMovieForDetail.listed_in }}</p>
+          </div>
+          
+          <div class="modal-section" *ngIf="selectedMovieForDetail.description">
+            <h3>Synopsis</h3>
+            <p class="modal-description">{{ selectedMovieForDetail.description }}</p>
+          </div>
+          
+          <div class="modal-section" *ngIf="selectedMovieForDetail.director && selectedMovieForDetail.director !== 'N/A'">
+            <h3>Réalisateur</h3>
+            <p>{{ selectedMovieForDetail.director }}</p>
+          </div>
+          
+          <div class="modal-section" *ngIf="selectedMovieForDetail.cast && selectedMovieForDetail.cast !== 'N/A'">
+            <h3>Acteurs</h3>
+            <p>{{ selectedMovieForDetail.cast }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT MOVIE MODAL (Admin) -->
+  <div *ngIf="editingMovie" class="modal-backdrop" (click)="onCancelEditMovie()">
+    <div class="modal-edit" (click)="$event.stopPropagation()">
+      <h3>✏️ Modifier: {{ editingMovie.title }}</h3>
+      <form (ngSubmit)="onSaveEditMovie()" class="edit-form">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" [(ngModel)]="editingMovie.title" name="edit_title" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="editingMovie.type" name="edit_type" class="form-input">
+            <option value="Movie">Movie</option>
+            <option value="TV Show">TV Show</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Année</label>
+          <select [(ngModel)]="editingMovie.release_year" name="edit_year" class="form-input">
+            <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Genre</label>
+          <input type="text" [(ngModel)]="editingMovie.listed_in" name="edit_genre" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editingMovie.description" name="edit_desc" class="form-input" rows="4"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">💾 Sauvegarder</button>
+          <button type="button" class="btn-secondary" (click)="onCancelEditMovie()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

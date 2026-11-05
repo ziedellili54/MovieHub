@@ -1,0 +1,198 @@
+<div class="api-browser-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">← Back to Dashboard</button>
+      <h1 class="page-title">🌐 External API Browser</h1>
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="toast success" (click)="successMessage = ''">
+    {{ successMessage }}
+    <span class="close">&times;</span>
+  </div>
+  <div *ngIf="errorMessage" class="toast error" (click)="errorMessage = ''">
+    {{ errorMessage }}
+    <span class="close">&times;</span>
+  </div>
+
+  <!-- API URL Input Section -->
+  <div class="api-input-card">
+    <h2>Enter External API URL</h2>
+    <p class="description">Paste the URL of any movie/TV show API to browse and import content</p>
+    
+    <div class="api-input-row">
+      <input 
+        type="text" 
+        [(ngModel)]="apiUrl" 
+        placeholder="https://api.example.com/movies" 
+        class="api-url-input"
+        (keyup.enter)="onBrowseApi()"
+      />
+      <button 
+        class="btn-browse" 
+        (click)="onBrowseApi()" 
+        [disabled]="loading || !apiUrl.trim()">
+        <span *ngIf="!loading">🔍 Browse API</span>
+        <span *ngIf="loading">Loading...</span>
+      </button>
+    </div>
+
+    <div class="api-examples">
+      <strong>Example APIs:</strong>
+      <span class="example-link" (click)="apiUrl = 'https://netflix-movies-and-tv-shows1.p.rapidapi.com/list'">Netflix API</span>
+      <span class="example-link" (click)="apiUrl = 'https://api.themoviedb.org/3/movie/popular?api_key=YOUR_KEY'">TMDB</span>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div *ngIf="items.length > 0" class="results-section">
+    
+    <!-- Filter Toolbar -->
+    <div class="filter-toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="applyFilters()" 
+          placeholder="Search by title, cast, director..." 
+          class="search-input"
+        />
+      </div>
+
+      <div class="filter-options">
+        <select [(ngModel)]="selectedYear" (change)="applyFilters()" class="filter-select">
+          <option value="">All Years</option>
+          <option *ngFor="let year of yearsList" [value]="year">{{ year }}</option>
+        </select>
+
+        <select [(ngModel)]="selectedType" (change)="applyFilters()" class="filter-select">
+          <option value="">All Types</option>
+          <option value="Movie">Movies</option>
+          <option value="TV Show">TV Shows</option>
+        </select>
+
+        <select [(ngModel)]="showNewOnly" (change)="showExistingOnly = false; applyFilters()" class="filter-select">
+          <option [ngValue]="false">Show All</option>
+          <option [ngValue]="true">New Only (Not in DB)</option>
+        </select>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-select-all" (click)="selectAll()">
+          Select All on Page
+        </button>
+        <button 
+          class="btn-save-selected" 
+          (click)="onSaveSelected()" 
+          [disabled]="!hasSelectedItems() || loading">
+          💾 Save Selected ({{ getSelectedCount() }})
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <span class="stat-item">📊 Total Items: <strong>{{ filteredItems.length }}</strong></span>
+      <span class="stat-item">✅ In Database: <strong>{{ getExistingCount() }}</strong></span>
+      <span class="stat-item">🆕 New Items: <strong>{{ getNewCount() }}</strong></span>
+      <span class="stat-item">☑️ Selected: <strong>{{ getSelectedCount() }}</strong></span>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="items-grid">
+      <div 
+        *ngFor="let item of getPaginatedItems()" 
+        class="item-card"
+        [ngClass]="{ 'item-selected': item.selected, 'item-exists': item.already_exists }"
+        (click)="toggleItemSelection(item)">
+        
+        <!-- Selection Checkbox -->
+        <div class="selection-overlay" *ngIf="!item.already_exists">
+          <div class="checkbox" [ngClass]="{ 'checked': item.selected }">
+            <span *ngIf="item.selected">✓</span>
+          </div>
+        </div>
+
+        <!-- Exists Badge -->
+        <div class="exists-badge" *ngIf="item.already_exists">
+          ✓ In Database
+        </div>
+
+        <!-- Poster -->
+        <div class="poster-container">
+          <img 
+            [src]="item.poster || 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22450%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231a1a26%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23ffae00%22%20font-size%3D%2224%22%20text-anchor%3D%22middle%22%3E%F0%9F%8E%AC%3C%2Ftext%3E%3C%2Fsvg%3E'"
+            [alt]="item.title"
+            class="poster-img"
+            (error)="onImageError($event)"
+          />
+        </div>
+
+        <!-- Info -->
+        <div class="item-info">
+          <h3 class="item-title" [title]="item.title">{{ item.title }}</h3>
+          <div class="item-meta">
+            <span class="meta-year" *ngIf="item.release_year">{{ item.release_year }}</span>
+            <span class="meta-type">{{ item.type }}</span>
+          </div>
+          <div class="item-genres" *ngIf="item.listed_in">
+            {{ item.listed_in }}
+          </div>
+          <div class="item-description" *ngIf="item.description">
+            {{ item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="getTotalPages() > 1">
+      <button 
+        class="btn-pagination" 
+        (click)="goToPage(currentPage - 1)" 
+        [disabled]="currentPage === 1">
+        ← Previous
+      </button>
+      
+      <div class="pagination-info">
+        Page <strong>{{ currentPage }}</strong> of <strong>{{ getTotalPages() }}</strong>
+        <span class="pagination-details">
+          ({{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredItems.length) }} of {{ filteredItems.length }})
+        </span>
+      </div>
+
+      <div class="pagination-buttons">
+        <button 
+          *ngFor="let page of getPages()" 
+          class="btn-page" 
+          [ngClass]="{ 'active': page === currentPage }"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        class="btn-pagination" 
+        (click)="goToPage(currentPage + 1)" 
+        [disabled]="currentPage === getTotalPages()">
+        Next →
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && items.length === 0" class="empty-state">
+    <div class="empty-icon">🌐</div>
+    <h3>No API Data Loaded</h3>
+    <p>Enter an external API URL above and click "Browse API" to load content</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading data from API...</p>
+  </div>
+</div>

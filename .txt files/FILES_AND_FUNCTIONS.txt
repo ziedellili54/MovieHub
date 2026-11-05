@@ -1,0 +1,2455 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 MOVIEHUB PROJECT - COMPLETE FILES & FUNCTIONS GUIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This file contains EVERY folder, file, class, and function in the project.
+Each entry shows EXACT location and what the code contains.
+
+Last Updated: 2026-08-13
+Project: MovieHub - Netflix-style Streaming Platform with AI Recommendations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 ROOT FOLDER: stage1/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Main project folder containing Django backend + Angular frontend
+
+SUBFOLDERS:
+    📁 django project backend/     → Django REST API server
+    📁 django project frontend/    → Angular single-page application
+    📁 .txt files/                 → Documentation files
+    📁 rapport/                    → Internship report documents
+    📁 .vscode/                    → VS Code configuration
+
+ROOT FILES:
+    📄 START_BACKEND.bat          → Starts Django server
+    📄 START_FRONTEND.bat         → Starts Angular dev server
+    📄 START_SERVER.bat           → Starts both backend + frontend
+    📄 CHECK_POSTERS.bat          → Checks poster status
+    📄 FETCH_POSTERS.bat          → Downloads missing posters
+    📄 RESTORE_BACKUP.bat         → Restores from backup
+    📄 README.md                  → Project documentation
+    📄 BACKUP_INFO.md             → Backup information
+    📄 AI_RECOMMENDATION_FIXES.md → AI fixes documentation
+    📄 FINAL_AI_STATUS.md         → Current AI status
+    📄 FIXES_SUMMARY.md           → Summary of fixes
+    📄 GENRE_CHANGE_FIX.md        → Genre switching fix details
+    📄 HOW_AI_SORTING_WORKS.md    → AI sorting explanation
+    📄 HOW_ALL_SECTIONS_WORK.md   → Sections system explanation
+    📄 WHAT_WAS_DONE_TODAY.md     → Daily work log
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project backend/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Django REST API backend with MongoDB + TensorFlow AI
+
+STRUCTURE:
+    📁 accounts/           → User management, auth, analytics
+    📁 movies/             → Movie CRUD operations
+    📁 recommendations/    → AI recommendation engine
+    📁 backend/            → Django project settings
+    📁 .venv/              → Python virtual environment
+    📁 vector_db/          → AI embeddings storage (runtime)
+    
+ROOT FILES:
+    📄 manage.py                              → Django CLI entry point
+    📄 db.sqlite3                             → SQLite database (Django internal)
+    📄 .env                                   → Environment secrets
+    📄 requirements.txt                       → Python dependencies
+    📄 error.html                             → Error page template
+
+
+PYTHON SCRIPTS (root):
+    📄 check_poster_status.py                 → Checks missing posters
+    📄 FETCH_ALL_POSTERS.py                   → Downloads all posters
+    📄 FETCH_ALL_MOVIE_POSTERS.py             → Downloads movie posters only
+    📄 FETCH_ALL_SERIES_POSTERS.py            → Downloads series posters only
+    📄 FIX_MOVIES_MISSING_POSTERS.py          → Fixes movie poster URLs
+    📄 FIX_TV_SHOWS_POSTERS_ONLY.py           → Fixes TV show poster URLs
+    📄 QUICK_FIX_POPULAR_TV_POSTERS.py        → Quick fix for popular shows
+    📄 FIX_AI_FOR_ALL_USERS.py                → Regenerates AI for all users
+    📄 DIAGNOSE_AI_GENRE_BIAS.py              → Tests AI genre bias
+    📄 APPLY_NETFLIX_DISTRIBUTION_FIX.py      → Applies Netflix distribution fix
+    📄 CHECK_NETFLIX_DISTRIBUTION.py          → Checks genre distribution
+    📄 CHECK_USER_AI_TRACKING.py              → Checks user AI tracking
+    📄 QUICK_VERIFY_AI.py                     → Quick AI verification
+    📄 CLEANUP_TEST_SCRIPTS.bat               → Cleans up test scripts
+
+DOCUMENTATION FILES (root):
+    📄 MOVIE_POSTER_FIX_STATUS.txt            → Poster fix status report
+    📄 POSTER_FIX_SUMMARY.md                  → Poster fix summary
+    📄 POSTER_SCRIPTS_README.md               → Poster scripts guide
+    📄 imdb_ratings_cache.json                → Cached IMDb ratings
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project backend/accounts/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: User authentication, authorization, analytics, and preferences
+
+FILES & CONTENTS:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 __init__.py                                                              │
+│ DESCRIPTION: Makes this folder a Python package                            │
+│ CONTENTS: Empty file                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 apps.py                                                                  │
+│ DESCRIPTION: Django app configuration                                      │
+│ CLASS: AccountsConfig                                                       │
+│   - name = 'accounts'                                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 admin.py                                                                 │
+│ DESCRIPTION: Django admin panel registration                               │
+│ CONTENTS: Admin interface configurations (minimal usage)                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 tests.py                                                                 │
+│ DESCRIPTION: Unit tests for accounts app                                   │
+│ CONTENTS: Test cases (currently minimal)                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 models.py - USER DATA MODELS                                            │
+│ LOCATION: django project backend/accounts/models.py                        │
+│ DESCRIPTION: User account and favorites models (MongoDB collections)       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: User(Document)
+    COLLECTION: 'users'
+    DESCRIPTION: User accounts with authentication
+    
+    FIELDS:
+        username          → StringField(required, unique) - Login username
+        email             → StringField(unique) - Email address
+        password          → StringField(required) - Hashed password (PBKDF2)
+        role              → StringField(default='user') - 'user' or 'admin'
+        reset_code        → StringField() - Password reset verification code
+        reset_code_expiry → DateTimeField() - Reset code expiration time
+    
+    METHODS:
+        set_password(plain_password)
+            - Hashes password using Django's PBKDF2 (600k iterations)
+            - Stores hashed password in password field
+            - Returns: None
+        
+        check_password(plain_password)
+            - Verifies password against stored hash
+            - Returns: Boolean (True if correct, False if wrong)
+
+CLASS: Favorite(Document)
+    COLLECTION: 'favorites'
+    DESCRIPTION: User favorite movies/shows
+    
+    FIELDS:
+        username  → StringField(required) - User who favorited
+        movie_id  → StringField(required) - ID of favorited movie
+    
+    METHODS: (Inherited from Document - save, delete, etc.)
+
+CLASS: WatchProgress(Document)
+    COLLECTION: 'watch_progress'
+    DESCRIPTION: Continue watching feature (resume playback)
+    
+    FIELDS:
+        username              → StringField(required) - User
+        movie_id              → StringField(required) - Movie being watched
+        progress_percentage   → FloatField(default=0.0) - Auto-calculated (0-100)
+        watching_percentage   → FloatField(default=0.0) - User-editable (0-100)
+        last_watched          → DateTimeField() - Last watch timestamp
+    
+    METHODS: (Inherited from Document)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 analytics_models.py - USER BEHAVIOR TRACKING MODELS                     │
+│ LOCATION: django project backend/accounts/analytics_models.py              │
+│ DESCRIPTION: Analytics and behavior tracking (7 MongoDB collections)       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: UserActivity(Document)
+    COLLECTION: 'user_activities'
+    DESCRIPTION: Logs every user action (search, watch, click)
+    
+    FIELDS:
+        username                 → StringField(required) - User
+        session_id               → StringField() - Session identifier
+        activity_type            → StringField(required) - Type of activity
+        movie_id                 → StringField() - Movie involved (if any)
+        movie_title              → StringField() - Movie title
+        movie_type               → StringField() - "Movie" or "TV Show"
+        search_query             → StringField() - Search term (if search)
+        search_results_count     → IntField() - Number of results
+        watch_duration_seconds   → IntField() - Watch time in seconds
+        watch_percentage         → FloatField() - Completion percentage
+        total_duration_seconds   → IntField() - Total movie duration
+        category                 → StringField() - Primary genre
+        genres                   → ListField(StringField()) - All genres
+        time_spent_seconds       → IntField() - Time on page
+        metadata                 → DictField() - Additional data
+        timestamp                → DateTimeField(default=datetime.utcnow)
+    
+    ACTIVITY TYPES:
+        "app_open", "search", "movie_click", "movie_play", "movie_watch",
+        "movie_finish", "add_watchlist", "remove_watchlist", "like", "dislike"
+
+CLASS: UserPreferences(Document)
+    COLLECTION: 'user_preferences'
+    DESCRIPTION: Aggregated user behavior patterns
+    
+    FIELDS:
+        username                      → StringField(required, unique)
+        favorite_genres               → ListField(StringField())
+        total_movies_watched          → IntField(default=0)
+        total_watch_time_minutes      → FloatField(default=0.0)
+        average_watch_percentage      → FloatField(default=0.0)
+        last_active                   → DateTimeField()
+        most_watched_genre            → StringField()
+        genre_weights                 → DictField() - Genre importance scores
+        recommendation_score          → IntField(default=0) - AI feedback score
+        preferences_last_updated      → DateTimeField()
+    
+    METHODS:
+        update_from_activity(activity)
+            - Updates preferences based on new activity
+            - Recalculates genre weights
+            - Updates watch statistics
+
+
+CLASS: UserSession(Document)
+    COLLECTION: 'user_sessions'
+    DESCRIPTION: Tracks app sessions (open to close)
+    
+    FIELDS:
+        session_id          → StringField(required, unique)
+        username            → StringField(required)
+        session_start       → DateTimeField(default=datetime.utcnow)
+        session_end         → DateTimeField()
+        duration_seconds    → IntField()
+        device              → StringField() - Device info
+        browser             → StringField() - Browser info
+        screen_resolution   → StringField() - Screen size
+        ip_address          → StringField() - IP address
+
+CLASS: MovieWatchHistory(Document)
+    COLLECTION: 'movie_watch_history'
+    DESCRIPTION: Per-movie watch statistics per user
+    
+    FIELDS:
+        username                 → StringField(required)
+        movie_id                 → StringField(required)
+        movie_title              → StringField()
+        watch_count              → IntField(default=0)
+        total_watch_time         → FloatField(default=0.0) - In hours
+        watch_percentage         → FloatField(default=0.0) - Completion %
+        completed                → BooleanField(default=False)
+        last_watched             → DateTimeField()
+        first_watched            → DateTimeField()
+        recommendation_score     → IntField(default=0) - AI feedback
+        genres                   → ListField(StringField())
+        primary_genre            → StringField()
+    
+    META: {'indexes': [('username', 'movie_id')]}
+
+CLASS: MovieDislike(Document)
+    COLLECTION: 'movie_dislikes'
+    DESCRIPTION: Hidden dislike system (filters content, penalizes AI)
+    
+    FIELDS:
+        username    → StringField(required)
+        movie_id    → StringField(required)
+        movie_title → StringField()
+        timestamp   → DateTimeField(default=datetime.utcnow)
+        reason      → StringField() - Optional reason
+    
+    META: {'indexes': [('username', 'movie_id')]}
+
+CLASS: RecommendationFeedback(Document)
+    COLLECTION: 'recommendation_feedback'
+    DESCRIPTION: AI self-learning from user clicks
+    
+    FIELDS:
+        username        → StringField(required)
+        movie_id        → StringField(required)
+        shown_position  → IntField() - Position in recommendation list (1-100)
+        clicked         → BooleanField(default=True)
+        feedback_score  → IntField() - Calculated from position
+        timestamp       → DateTimeField(default=datetime.utcnow)
+    
+    FEEDBACK SCORING:
+        Position 1-5:    +10 points (strong positive)
+        Position 6-10:   +5 points
+        Position 11-20:  0 points (neutral)
+        Position 21-50:  -10 points
+        Position 51+:    -31 to -100 points (strong negative)
+
+
+CLASS: UserPersonalizedSections(Document)
+    COLLECTION: 'user_personalized_sections'
+    DESCRIPTION: Cached dashboard sections (10 sections per user)
+    
+    FIELDS:
+        username                → StringField(required, unique)
+        ai_recommendations      → ListField(DictField())
+        top_watched_movies      → ListField(DictField())
+        top_watched_series      → ListField(DictField())
+        top_searched_movies     → ListField(DictField())
+        top_searched_series     → ListField(DictField())
+        top_10_movies           → ListField(DictField())
+        top_10_series           → ListField(DictField())
+        top_20_favorites        → ListField(DictField())
+        newly_added_movies      → ListField(DictField())
+        newly_added_series      → ListField(DictField())
+        user_genres             → ListField(StringField())
+        last_updated            → DateTimeField(default=datetime.utcnow)
+    
+    METHODS:
+        is_stale(hours=24)
+            - Checks if cache expired
+            - Returns: Boolean (True if needs regeneration)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 views.py - USER AUTHENTICATION & MANAGEMENT VIEWS                       │
+│ LOCATION: django project backend/accounts/views.py                         │
+│ DESCRIPTION: User CRUD, authentication, favorites, watch progress          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: CustomLoginView(APIView)
+    ENDPOINT: POST /api/login/
+    DESCRIPTION: JWT authentication endpoint
+    
+    METHODS:
+        post(request)
+            INPUT: {username: str, password: str}
+            PROCESS:
+                1. Validates username exists in MongoDB
+                2. Checks password with User.check_password()
+                3. Generates JWT access token (1 hour)
+                4. Generates JWT refresh token (7 days)
+            OUTPUT: {
+                access: "jwt_token",
+                refresh: "refresh_token",
+                username: "john",
+                role: "user"
+            }
+            STATUS: 200 OK, 400 Bad Request, 401 Unauthorized
+
+CLASS: CustomRegisterView(APIView)
+    ENDPOINT: POST /api/register/
+    DESCRIPTION: User registration endpoint
+    
+    METHODS:
+        post(request)
+            INPUT: {username: str, email: str, password: str}
+            PROCESS:
+                1. Validates username not taken
+                2. Validates email not taken
+                3. Creates User with hashed password
+                4. Creates initial UserPreferences document
+            OUTPUT: {message: "Registration successful"}
+            STATUS: 201 Created, 400 Bad Request
+
+
+CLASS: ListUsersView(APIView)
+    ENDPOINT: GET /api/users/
+    DESCRIPTION: Get all users (admin only)
+    
+    METHODS:
+        get(request)
+            OUTPUT: [{id, username, email, role}, ...]
+            STATUS: 200 OK
+
+CLASS: DeleteUserView(APIView)
+    ENDPOINT: DELETE /api/users/delete/{user_id}/
+    DESCRIPTION: Delete user (admin only, can't delete admin)
+    
+    METHODS:
+        delete(request, user_id)
+            PROCESS: Deletes user and all related data
+            OUTPUT: {message: "User deleted"}
+            STATUS: 200 OK, 403 Forbidden
+
+CLASS: FavoritesView(APIView)
+    ENDPOINT: GET /api/favorites/{username}/
+              POST /api/favorites/{username}/
+    DESCRIPTION: Get or toggle favorites
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: {favorites: ["movie_id1", "movie_id2", ...]}
+        
+        post(request, username)
+            INPUT: {movie_id: str}
+            PROCESS: If exists → remove, else → add
+            OUTPUT: {is_favorite: bool}
+
+CLASS: FavoriteMoviesView(APIView)
+    ENDPOINT: GET /api/favorites/{username}/movies/
+    DESCRIPTION: Get full details of favorite movies
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: {movies: [{id, title, poster, ...}, ...]}
+
+FUNCTION: get_watch_progress(request)
+    ENDPOINT: GET /api/watch-progress/?username={username}
+    DESCRIPTION: Get all watch progress for user
+    
+    OUTPUT: [{
+        movie_id: str,
+        progress_percentage: float,
+        watching_percentage: float,
+        last_watched: datetime
+    }, ...]
+
+FUNCTION: update_watch_progress(request)
+    ENDPOINT: POST /api/watch-progress/update/
+    DESCRIPTION: Update watch progress
+    
+    INPUT: {
+        username: str,
+        movie_id: str,
+        progress_percentage: float
+    }
+    OUTPUT: {message: "Progress updated"}
+
+
+HTML VIEW FUNCTIONS (Session-based, not JWT):
+
+FUNCTION: login_page(request)
+    ENDPOINT: GET/POST /user/
+    DESCRIPTION: User login HTML form
+    RETURNS: HTML template (templates/accounts/login.html)
+
+FUNCTION: register_page(request)
+    ENDPOINT: GET/POST /user/register/
+    DESCRIPTION: User registration HTML form
+    RETURNS: HTML template (templates/accounts/register.html)
+
+FUNCTION: admin_login_page(request)
+    ENDPOINT: GET/POST /admin/login/
+    DESCRIPTION: Admin login HTML form (session auth)
+    RETURNS: HTML template (templates/accounts/admin_login.html)
+
+FUNCTION: admin_dashboard(request)
+    ENDPOINT: GET /admin/
+    DESCRIPTION: Admin panel with movies and users
+    RETURNS: HTML template (templates/accounts/admin_dashboard.html)
+
+FUNCTION: delete_movie(request, movie_id)
+    ENDPOINT: POST /admin/delete-movie/{movie_id}/
+    DESCRIPTION: Delete movie (HTML form submission)
+    RETURNS: Redirect to admin dashboard
+
+FUNCTION: edit_movie(request, movie_id)
+    ENDPOINT: GET/POST /admin/edit-movie/{movie_id}/
+    DESCRIPTION: Edit movie form
+    RETURNS: HTML template (templates/movies/edit_movie.html)
+
+FUNCTION: delete_user(request, user_id)
+    ENDPOINT: POST /admin/delete-user/{user_id}/
+    DESCRIPTION: Delete user (HTML form submission)
+    RETURNS: Redirect to admin dashboard
+
+FUNCTION: logout_view(request)
+    ENDPOINT: GET /logout/
+    DESCRIPTION: Logout and clear session
+    RETURNS: Redirect to login page
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 analytics_views.py - USER BEHAVIOR TRACKING VIEWS                       │
+│ LOCATION: django project backend/accounts/analytics_views.py               │
+│ DESCRIPTION: Track and retrieve user activity data                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: TrackActivityView(APIView)
+    ENDPOINT: POST /api/analytics/track/
+    DESCRIPTION: Log any user activity
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                username: str,
+                activity_type: str,
+                movie_id: str (optional),
+                search_query: str (optional),
+                watch_duration_seconds: int (optional),
+                ... (see UserActivity fields)
+            }
+            PROCESS:
+                1. Creates UserActivity document
+                2. Updates UserPreferences automatically
+                3. Updates MovieWatchHistory if watch activity
+            OUTPUT: {message: "Activity tracked"}
+
+
+CLASS: StartSessionView(APIView)
+    ENDPOINT: POST /api/analytics/session/start/
+    DESCRIPTION: Start new user session
+    
+    METHODS:
+        post(request)
+            INPUT: {username: str, device: str, browser: str}
+            PROCESS: Creates UserSession document with unique session_id
+            OUTPUT: {session_id: str}
+
+CLASS: EndSessionView(APIView)
+    ENDPOINT: POST /api/analytics/session/end/
+    DESCRIPTION: End user session
+    
+    METHODS:
+        post(request)
+            INPUT: {session_id: str}
+            PROCESS:
+                1. Finds UserSession
+                2. Sets session_end = now
+                3. Calculates duration_seconds
+            OUTPUT: {message: "Session ended", duration: int}
+
+CLASS: GetUserAnalyticsView(APIView)
+    ENDPOINT: GET /api/analytics/user/{username}/
+    DESCRIPTION: Get analytics for specific user
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: {
+                total_activities: int,
+                total_searches: int,
+                total_watches: int,
+                total_watch_time_minutes: float,
+                favorite_genres: [str, ...],
+                most_watched_movies: [{title, count}, ...],
+                watch_percentage_avg: float,
+                recent_activities: [{activity}, ...]
+            }
+
+CLASS: GetAllUsersAnalyticsView(APIView)
+    ENDPOINT: GET /api/analytics/all/
+    DESCRIPTION: Get analytics for all users (admin)
+    
+    METHODS:
+        get(request)
+            OUTPUT: {
+                total_users: int,
+                total_activities: int,
+                total_watch_time_hours: float,
+                most_active_users: [{username, activity_count}, ...],
+                popular_movies: [{title, watch_count}, ...],
+                popular_searches: [{query, count}, ...]
+            }
+
+CLASS: GetUserMovieWatchPercentagesView(APIView)
+    ENDPOINT: GET /api/analytics/user/{username}/movies/
+    DESCRIPTION: Get per-movie watch statistics
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: [{
+                movie_id: str,
+                movie_title: str,
+                watch_percentage: float,
+                watch_count: int,
+                total_watch_time: float,
+                completed: bool
+            }, ...]
+
+
+CLASS: GetMovieWatchDetailsView(APIView)
+    ENDPOINT: GET /api/analytics/movie/{movie_id}/watch-details/
+    DESCRIPTION: Get detailed watch sessions for a movie
+    
+    METHODS:
+        get(request, movie_id)
+            OUTPUT: [{
+                username: str,
+                watch_duration: int,
+                watch_percentage: float,
+                timestamp: datetime
+            }, ...]
+
+CLASS: GetContinueWatchingView(APIView)
+    ENDPOINT: GET /api/analytics/continue-watching/{username}/
+    DESCRIPTION: Get Continue Watching list (5-95% completion)
+    
+    METHODS:
+        get(request, username)
+            PROCESS:
+                1. Queries MovieWatchHistory
+                2. Filters: watch_percentage >= 5% AND <= 95%
+                3. Excludes disliked movies
+                4. Sorts by last_watched (most recent first)
+            OUTPUT: [{
+                movie_id: str,
+                movie_title: str,
+                poster: str,
+                watch_percentage: float,
+                last_watched: datetime
+            }, ...]
+
+CLASS: UpdateWatchingPercentageView(APIView)
+    ENDPOINT: POST /api/analytics/update-watching-percentage/
+    DESCRIPTION: Update user-editable watch percentage
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                username: str,
+                movie_id: str,
+                watching_percentage: float
+            }
+            PROCESS: Updates WatchProgress.watching_percentage
+            OUTPUT: {message: "Percentage updated"}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 password_reset_views.py - PASSWORD RESET FLOW                           │
+│ LOCATION: django project backend/accounts/password_reset_views.py          │
+│ DESCRIPTION: Email-based password reset with verification codes            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: RequestPasswordResetView(APIView)
+    ENDPOINT: POST /api/password-reset/request/
+    DESCRIPTION: Request password reset code
+    
+    METHODS:
+        post(request)
+            INPUT: {email: str}
+            PROCESS:
+                1. Finds user by email
+                2. Generates 6-digit random code
+                3. Sets reset_code_expiry = now + 15 minutes
+                4. Sends email with code (Gmail SMTP)
+            OUTPUT: {message: "Reset code sent to email"}
+
+
+CLASS: VerifyCodeView(APIView)
+    ENDPOINT: POST /api/password-reset/verify-code/
+    DESCRIPTION: Verify reset code
+    
+    METHODS:
+        post(request)
+            INPUT: {email: str, code: str}
+            PROCESS:
+                1. Finds user by email
+                2. Checks code matches
+                3. Checks not expired (< 15 min)
+            OUTPUT: {valid: bool}
+
+CLASS: ResetPasswordView(APIView)
+    ENDPOINT: POST /api/password-reset/reset/
+    DESCRIPTION: Reset password with code
+    
+    METHODS:
+        post(request)
+            INPUT: {email: str, code: str, new_password: str}
+            PROCESS:
+                1. Verifies code again
+                2. Hashes new password (PBKDF2)
+                3. Updates user password
+                4. Clears reset_code and reset_code_expiry
+            OUTPUT: {message: "Password reset successful"}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 preference_views.py - USER PREFERENCE MANAGEMENT                        │
+│ LOCATION: django project backend/accounts/preference_views.py              │
+│ DESCRIPTION: Update user's favorite genres and regenerate recommendations  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: UpdateUserPreferencesView(APIView)
+    ENDPOINT: POST /api/preferences/update/
+    DESCRIPTION: Update user's favorite genres
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                username: str,
+                favorite_genres: [str, ...]
+            }
+            PROCESS:
+                1. Updates UserPreferences.favorite_genres
+                2. Triggers PersonalizedSectionsEngine regeneration
+                3. Clears cached sections
+            OUTPUT: {message: "Preferences updated"}
+
+CLASS: GetUserPreferencesView(APIView)
+    ENDPOINT: GET /api/preferences/{username}/
+    DESCRIPTION: Get user's current preferences
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: {
+                favorite_genres: [str, ...],
+                total_movies_watched: int,
+                most_watched_genre: str,
+                ...
+            }
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 dislike_views.py - HIDDEN DISLIKE SYSTEM                                │
+│ LOCATION: django project backend/accounts/dislike_views.py                 │
+│ DESCRIPTION: Hidden dislike system (filters content, penalizes AI)         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: DislikeMovieView(APIView)
+    ENDPOINT: POST /api/dislikes/
+    DESCRIPTION: Dislike a movie (hidden from user)
+    
+    METHODS:
+        post(request)
+            INPUT: {username: str, movie_id: str, reason: str (optional)}
+            PROCESS:
+                1. Creates MovieDislike document
+                2. Penalizes AI: MovieWatchHistory.recommendation_score -= 50
+                3. Movie filtered from all future sections
+            OUTPUT: {message: "Movie disliked"}
+
+CLASS: GetDislikesView(APIView)
+    ENDPOINT: GET /api/dislikes/{username}/
+    DESCRIPTION: Get all dislikes (admin/debug)
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: [{movie_id, movie_title, timestamp}, ...]
+
+CLASS: RemoveDislikeView(APIView)
+    ENDPOINT: DELETE /api/dislikes/
+    DESCRIPTION: Remove dislike (allow movie again)
+    
+    METHODS:
+        delete(request)
+            INPUT: {username: str, movie_id: str}
+            PROCESS:
+                1. Deletes MovieDislike document
+                2. Restores AI score: recommendation_score += 50
+            OUTPUT: {message: "Dislike removed"}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 recommendation_feedback_views.py - AI SELF-LEARNING                     │
+│ LOCATION: django project backend/accounts/recommendation_feedback_views.py │
+│ DESCRIPTION: Track which recommendations users click (AI improvement)      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: TrackRecommendationFeedbackView(APIView)
+    ENDPOINT: POST /api/analytics/recommendation-feedback/
+    DESCRIPTION: Track recommendation click for AI learning
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                username: str,
+                movie_id: str,
+                shown_position: int
+            }
+            PROCESS:
+                1. Creates RecommendationFeedback document
+                2. Calculates feedback_score from position:
+                   - Position 1-5: +10 points
+                   - Position 6-10: +5 points
+                   - Position 11-20: 0 points
+                   - Position 21-50: -10 points
+                   - Position 51-100: -31 to -100 points
+                3. Updates MovieWatchHistory.recommendation_score
+            OUTPUT: {message: "Feedback tracked"}
+
+
+CLASS: GetRecommendationStatsView(APIView)
+    ENDPOINT: GET /api/analytics/recommendation-stats/{username}/
+    DESCRIPTION: Get AI performance statistics
+    
+    METHODS:
+        get(request, username)
+            OUTPUT: {
+                total_recommendations_shown: int,
+                total_clicks: int,
+                click_through_rate: float,
+                avg_click_position: float,
+                top_performing_movies: [{title, clicks, avg_position}, ...]
+            }
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project backend/movies/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Movie and TV show CRUD operations, external API integration
+
+FILES & CONTENTS:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 __init__.py, apps.py, admin.py, tests.py                                │
+│ DESCRIPTION: Standard Django app files                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 models.py - MOVIE DATA MODELS                                           │
+│ LOCATION: django project backend/movies/models.py                          │
+│ DESCRIPTION: Movie, TV show, and pack models (MongoDB collections)         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: Movie(Document)
+    COLLECTION: 'movies'
+    DESCRIPTION: Individual movie documents
+    
+    FIELDS:
+        show_id           → StringField() - External API ID (e.g., IMDb ID)
+        title             → StringField() - Movie title
+        type              → StringField() - "Movie"
+        director          → StringField() - Director name(s)
+        cast              → StringField() - Comma-separated actor names
+        country           → StringField() - Country of origin
+        release_year      → IntField() - Release year
+        date_added        → StringField() - Date added to database
+        rating            → StringField() - Age rating (PG, R, etc.)
+        duration          → StringField() - Runtime (e.g., "120 min")
+        listed_in         → StringField() - Comma-separated genres
+        description       → StringField() - Plot summary
+        poster            → StringField() - Poster image URL
+        imdb_rating       → FloatField() - IMDb rating (0.0-10.0)
+        runtime           → IntField() - Runtime in minutes
+        language          → StringField() - Language(s)
+        primary_category  → StringField() - Main genre (AI-detected)
+        video_url         → StringField() - Video file URL (optional)
+    
+    METHODS: (Inherited from Document - save, delete, etc.)
+
+
+CLASS: TVShow(Document)
+    COLLECTION: 'tv_shows'
+    DESCRIPTION: TV show documents (same structure as Movie)
+    
+    FIELDS: (Identical to Movie)
+        show_id, title, type ("TV Show"), director, cast, country,
+        release_year, date_added, rating, duration, listed_in,
+        description, poster, imdb_rating, runtime, language,
+        primary_category, video_url
+    
+    NOTE: Separate collection for organization, but queried together
+
+CLASS: Pack(Document)
+    COLLECTION: 'packs'
+    DESCRIPTION: Themed movie collections/bundles
+    
+    FIELDS:
+        name         → StringField(required) - Pack name
+        genres       → ListField(StringField()) - Genre filters
+        years        → ListField(IntField()) - Year filters
+        movie_ids    → ListField(StringField()) - Movie IDs in pack
+        cover_image  → StringField() - Pack cover image URL
+        level        → IntField(default=0) - Difficulty/rating level (0-5)
+        description  → StringField() - Pack description
+        created_at   → DateTimeField(default=datetime.utcnow)
+    
+    METHODS: (Inherited from Document)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 views.py - MOVIE CRUD & EXTERNAL API VIEWS                              │
+│ LOCATION: django project backend/movies/views.py                           │
+│ DESCRIPTION: Movie operations and external API integration                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: ListMoviesView(APIView)
+    ENDPOINT: GET /api/movies/
+    DESCRIPTION: List movies with pagination, search, filters
+    
+    METHODS:
+        get(request)
+            QUERY PARAMS:
+                limit: int (default 24) - Movies per page
+                page: int (default 1) - Page number
+                search: str - Search query (title, director, cast, description)
+                type: str - "Movie" or "TV Show"
+                genre: str - Genre filter
+                sort: str - Sort order ("title-asc", "year-desc", etc.)
+            
+            PROCESS:
+                1. Merges Movie and TVShow collections
+                2. Applies search (MongoDB regex, case-insensitive)
+                3. Applies filters (type, genre)
+                4. Sorts results
+                5. Paginates (skip + limit)
+            
+            OUTPUT: {
+                movies: [{id, title, poster, ...}, ...],
+                count: 24,
+                total: 500,
+                page: 1,
+                limit: 24,
+                total_pages: 21
+            }
+
+
+CLASS: AddMovieView(APIView)
+    ENDPOINT: POST /api/movies/add/
+    DESCRIPTION: Add new movie (admin only)
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                title: str,
+                type: str,
+                release_year: int,
+                director: str,
+                cast: str,
+                listed_in: str,
+                description: str,
+                poster: str,
+                ... (all Movie fields)
+            }
+            PROCESS:
+                1. Creates Movie or TVShow document
+                2. Auto-detects primary_category (first genre)
+                3. Saves to MongoDB
+            OUTPUT: {message: "Movie added", id: str}
+
+CLASS: EditMovieView(APIView)
+    ENDPOINT: PUT /api/movies/edit/{movie_id}/
+    DESCRIPTION: Edit existing movie (admin only)
+    
+    METHODS:
+        put(request, movie_id)
+            INPUT: {field: value, ...} (any Movie fields)
+            PROCESS: Updates specified fields
+            OUTPUT: {message: "Movie updated"}
+
+CLASS: DeleteMovieView(APIView)
+    ENDPOINT: DELETE /api/movies/delete/{movie_id}/
+    DESCRIPTION: Delete movie (admin only)
+    
+    METHODS:
+        delete(request, movie_id)
+            PROCESS:
+                1. Deletes Movie or TVShow document
+                2. Removes from all favorites
+                3. Deletes watch progress
+                4. Removes from analytics
+            OUTPUT: {message: "Movie deleted"}
+
+CLASS: GenresView(APIView)
+    ENDPOINT: GET /api/genres/
+    DESCRIPTION: Get all unique genres
+    
+    METHODS:
+        get(request)
+            PROCESS:
+                1. Gets all movies + TV shows
+                2. Extracts listed_in field
+                3. Splits comma-separated genres
+                4. Returns unique sorted list
+            OUTPUT: {genres: ["Action", "Comedy", "Drama", ...]}
+
+
+CLASS: FetchMoviesView(APIView)
+    ENDPOINT: POST /api/movies/fetch/
+    DESCRIPTION: Fetch movies from RapidAPI Netflix Database
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                year: int,
+                pages: int (default 1)
+            }
+            PROCESS:
+                1. Calls RapidAPI Netflix endpoint
+                2. Fetches specified year and pages
+                3. Transforms API response to Movie model
+                4. Checks for duplicates (by show_id)
+                5. Saves to MongoDB
+                6. Fetches posters from TMDB
+            OUTPUT: {
+                message: "Fetched X movies",
+                added: int,
+                duplicates: int
+            }
+
+CLASS: ApiSearchOMDbView(APIView)
+    ENDPOINT: GET /api/omdb/search/
+    DESCRIPTION: Search OMDb API for movies
+    
+    METHODS:
+        get(request)
+            QUERY PARAMS: title=str
+            PROCESS:
+                1. Calls OMDb API search
+                2. Returns list of matching movies
+            OUTPUT: {
+                results: [{
+                    Title: str,
+                    Year: str,
+                    imdbID: str,
+                    Poster: str,
+                    Plot: str
+                }, ...]
+            }
+
+CLASS: ApiSaveSelectedOMDbView(APIView)
+    ENDPOINT: POST /api/omdb/save-selected/
+    DESCRIPTION: Save selected OMDb results to database
+    
+    METHODS:
+        post(request)
+            INPUT: {
+                selected: [{imdbID: str, Title: str, ...}, ...]
+            }
+            PROCESS:
+                1. For each selected movie:
+                   a. Fetches full details from OMDb
+                   b. Transforms to Movie model format
+                   c. Checks for duplicates
+                   d. Saves to MongoDB
+            OUTPUT: {
+                message: "Saved X movies",
+                saved: int,
+                duplicates: int
+            }
+
+
+CLASS: ExternalApiBrowseView(APIView)
+    ENDPOINT: POST /api/external/browse/
+    DESCRIPTION: Import movies from any external API URL
+    
+    METHODS:
+        post(request)
+            INPUT: {url: str}
+            PROCESS:
+                1. Makes GET request to provided URL
+                2. Auto-detects JSON structure
+                3. Maps common fields (title, year, genre, etc.)
+                4. Creates Movie documents
+                5. Saves to MongoDB
+            OUTPUT: {
+                message: "Imported X movies",
+                imported: int,
+                errors: int
+            }
+
+CLASS: PackPreviewView(APIView)
+    ENDPOINT: GET /api/packs/preview/
+    DESCRIPTION: Preview pack before creating
+    
+    METHODS:
+        get(request)
+            QUERY PARAMS:
+                genres: str (comma-separated)
+                years: str (comma-separated)
+                limit: int (default 20)
+            PROCESS:
+                1. Queries movies matching criteria
+                2. Returns preview of matching movies
+            OUTPUT: {
+                preview: [{id, title, poster, ...}, ...],
+                total: int
+            }
+
+CLASS: PackListView(APIView)
+    ENDPOINT: GET /api/packs/ - List all packs
+              POST /api/packs/ - Create new pack
+    
+    METHODS:
+        get(request)
+            OUTPUT: {packs: [{id, name, cover_image, level}, ...]}
+        
+        post(request)
+            INPUT: {
+                name: str,
+                genres: [str, ...],
+                years: [int, ...],
+                movie_ids: [str, ...],
+                level: int
+            }
+            PROCESS:
+                1. Creates Pack document
+                2. Sets cover_image to first movie's poster
+            OUTPUT: {message: "Pack created", id: str}
+
+CLASS: PackDetailView(APIView)
+    ENDPOINT: GET /api/packs/{pack_id}/ - Get pack details
+              PUT /api/packs/{pack_id}/ - Update pack
+              DELETE /api/packs/{pack_id}/ - Delete pack
+    
+    METHODS:
+        get(request, pack_id)
+            OUTPUT: {
+                id: str,
+                name: str,
+                movies: [{id, title, poster, ...}, ...],
+                level: int
+            }
+        
+        put(request, pack_id)
+            INPUT: {field: value, ...}
+            OUTPUT: {message: "Pack updated"}
+        
+        delete(request, pack_id)
+            OUTPUT: {message: "Pack deleted"}
+
+
+HTML VIEW FUNCTIONS (Session-based):
+
+FUNCTION: movies_page(request)
+    ENDPOINT: GET /movies/
+    DESCRIPTION: Display all movies HTML page
+    RETURNS: HTML template
+
+FUNCTION: fetch_page(request)
+    ENDPOINT: GET /fetch/
+    DESCRIPTION: Fetch movies form HTML page
+    RETURNS: HTML template
+
+FUNCTION: add_movie_page(request)
+    ENDPOINT: GET /add-movie/
+    DESCRIPTION: Add movie form HTML page
+    RETURNS: HTML template
+
+FUNCTION: search_movie_page(request)
+    ENDPOINT: GET /search/
+    DESCRIPTION: Search movies form HTML page
+    RETURNS: HTML template
+
+FUNCTION: test_simple_view(request)
+    ENDPOINT: GET /test/
+    DESCRIPTION: Simple test endpoint
+    RETURNS: JSON {message: "Test successful"}
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project backend/recommendations/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: AI recommendation engine using TensorFlow Hub
+
+FILES & CONTENTS:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 __init__.py                                                              │
+│ DESCRIPTION: Makes this folder a Python package                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 urls.py - RECOMMENDATION ROUTES                                         │
+│ LOCATION: django project backend/recommendations/urls.py                   │
+│ DESCRIPTION: URL patterns for recommendation endpoints                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ROUTES:
+    /health/ → HealthCheckView
+    /index-movies/ → IndexMoviesView
+    /{username}/ → GetRecommendationsView
+    /similar/{movie_id}/ → GetSimilarMoviesView
+    /trending/ → GetTrendingView
+    /sections/{username}/ → GetPersonalizedSectionsView
+    /sections/{username}/regenerate/ → RegeneratePersonalizedSectionsView
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 recommendation_engine.py - AI RECOMMENDATION CORE                       │
+│ LOCATION: django project backend/recommendations/recommendation_engine.py  │
+│ DESCRIPTION: TensorFlow Hub-based AI recommendation system                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: RecommendationEngine
+    DESCRIPTION: AI-powered recommendation system
+    TECHNOLOGY: TensorFlow Hub Universal Sentence Encoder v4
+    
+    INITIALIZATION:
+        __init__(self)
+            - Loads TensorFlow Hub model
+            - Initializes SimpleVectorDB
+            - Creates 'movies' and 'user_profiles' collections
+    
+    ═══════════════════════════════════════════════════════════════════════
+    PART 1: EMBEDDING GENERATION
+    ═══════════════════════════════════════════════════════════════════════
+    
+    METHOD: generate_embedding(text: str) -> List[float]
+        DESCRIPTION: Converts text to 512-dimensional vector
+        INPUT: Movie description text
+        OUTPUT: [0.023, -0.145, 0.678, ..., 0.234] (512 numbers)
+        USES: TensorFlow Hub Universal Sentence Encoder
+    
+    METHOD: create_movie_text(movie) -> str
+        DESCRIPTION: Converts movie object to text description
+        INPUT: Movie or TVShow document
+        OUTPUT: "Primary Genre: Action. Type: Movie. Year: 2020. Plot: ..."
+        LOGIC:
+            - Emphasizes primary_genre (appears 3 times)
+            - Includes: type, year, plot, rating, director
+    
+    ═══════════════════════════════════════════════════════════════════════
+    PART 2: MOVIE INDEXING
+    ═══════════════════════════════════════════════════════════════════════
+    
+    METHOD: index_movie(movie) -> bool
+        DESCRIPTION: Indexes movie for AI recommendations
+        PROCESS:
+            1. Creates movie text with create_movie_text()
+            2. Generates embedding with TensorFlow
+            3. Stores in vector_db/movies/ collection
+            4. Saves metadata (title, genres, year, etc.)
+        RETURNS: True if successful, False if error
+    
+    METHOD: index_all_movies() -> Dict
+        DESCRIPTION: Indexes all movies in database
+        PROCESS:
+            1. Gets all Movie + TVShow documents
+            2. Indexes each with index_movie()
+            3. Shows progress (e.g., "Indexed 100/500")
+        RETURNS: {
+            total: int,
+            indexed: int,
+            failed: int
+        }
+    
+    METHOD: is_indexed(movie_id: str) -> bool
+        DESCRIPTION: Check if movie already indexed
+        RETURNS: Boolean
+
+    
+    ═══════════════════════════════════════════════════════════════════════
+    PART 3: USER PROFILE CREATION
+    ═══════════════════════════════════════════════════════════════════════
+    
+    METHOD: build_user_profile(username: str) -> Optional[List[float]]
+        DESCRIPTION: Creates user preference embedding
+        PROCESS:
+            1. Calculates genre weights from:
+               - Completed movies: 300 points each
+               - Recent completed (7 days): 3x multiplier (900 pts)
+               - Continue watching (>20%): 100 points
+               - Favorites: 80 points
+               - Manual genre selection: 150 points
+            2. Creates weighted text:
+               "Action Action Action Drama Drama Comedy"
+               (repeated based on weights)
+            3. Generates embedding from text
+            4. Stores in vector_db/user_profiles/
+        RETURNS: 512-dimensional user preference vector
+    
+    METHOD: _calculate_genre_weights(username: str) -> dict
+        DESCRIPTION: Calculate genre importance scores
+        RETURNS: {
+            "Action": 3000,
+            "Drama": 1800,
+            "Comedy": 400
+        }
+    
+    METHOD: get_top_user_genres(username: str) -> List[str]
+        DESCRIPTION: Identify important genres (>= 15% of total weight)
+        PROCESS:
+            1. Calculates genre weights
+            2. Total weight: 5200 points
+            3. Threshold: 5200 * 0.15 = 780 points
+            4. Returns genres above threshold
+        RETURNS: ["Action", "Drama"] (genres with >= 15% importance)
+        
+        EXAMPLE:
+            Action: 3000 pts (57%) → IMPORTANT
+            Drama: 1800 pts (34%) → IMPORTANT
+            Comedy: 400 pts (7%) → NOT important
+    
+    ═══════════════════════════════════════════════════════════════════════
+    PART 4: RECOMMENDATION GENERATION (MULTI-GENRE FIX)
+    ═══════════════════════════════════════════════════════════════════════
+    
+    METHOD: get_recommendations(username: str, count: int = 20, 
+                                genre: str = None, type: str = None) -> List[Dict]
+        DESCRIPTION: Generate personalized recommendations
+        
+        FIXED BUG: Multi-genre recommendations now properly interleaved
+        
+        PROCESS:
+            1. Get user's important genres (>= 15% threshold)
+            2. Calculate genre proportions:
+               - Primary genre: 60% of results
+               - Secondary genre: 30% of results
+               - Others: 10% of results
+            
+            3. IF SINGLE GENRE:
+               - Build single user profile embedding
+               - Query vector DB once
+               - Return top N similar movies
+            
+            4. IF MULTIPLE GENRES:
+               - Query vector DB separately for EACH genre
+               - Get proportional results per genre:
+                 * Primary: 12 movies (60% of 20)
+                 * Secondary: 6 movies (30% of 20)
+                 * Others: 2 movies (10% of 20)
+               - INTERLEAVE results (not cluster):
+                 [A,A,D,A,D,A,A,D,A,D,A,A,D,O,A,D,A,A,O,D]
+            
+            5. Filter out:
+               - Already watched (completed movies)
+               - Disliked movies
+               - Low recommendation_score movies (AI feedback)
+            
+            6. Apply additional filters (genre, type if provided)
+        
+        RETURNS: [{
+            id: str,
+            title: str,
+            poster: str,
+            genres: str,
+            similarity: float,
+            recommendation_reason: str
+        }, ...]
+
+    
+    METHOD: get_similar_movies(movie_id: str, count: int = 10) -> List[Dict]
+        DESCRIPTION: Find similar movies based on content
+        PROCESS:
+            1. Gets movie embedding from vector DB
+            2. Queries for similar embeddings (cosine similarity)
+            3. Returns top N most similar
+        RETURNS: [{id, title, similarity, ...}, ...]
+    
+    METHOD: get_trending(count: int = 20) -> List[Dict]
+        DESCRIPTION: Get trending/popular movies
+        PROCESS:
+            1. Queries recent movies (2020+)
+            2. Sorts by: IMDb rating + watch count
+            3. Returns top N
+        RETURNS: [{id, title, trending_score, ...}, ...]
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 personalized_sections_engine.py - DASHBOARD SECTIONS GENERATOR          │
+│ LOCATION: django project backend/recommendations/personalized_sections_engine.py │
+│ DESCRIPTION: Generates 10 Netflix-style sections per user                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: PersonalizedSectionsEngine
+    DESCRIPTION: Dashboard sections generator with caching
+    
+    METHOD: generate_sections_for_user(username, force_regenerate=False) -> Dict
+        DESCRIPTION: Generate or retrieve all 10 sections
+        PROCESS:
+            1. Check cache (UserPersonalizedSections)
+            2. If fresh (<24h) and not forced → return cached
+            3. If stale or forced → regenerate
+            4. Get user's preferred genres
+            5. Get user's disliked movies (to filter)
+            6. Generate each section
+            7. Save to MongoDB cache
+        RETURNS: {
+            ai_recommendations: [...],
+            top_watched_movies: [...],
+            ... (10 sections total)
+        }
+    
+    METHOD: _get_user_preferred_genres(username) -> List[str]
+        DESCRIPTION: Get user's favorite genres in order
+        PROCESS:
+            1. Queries UserPreferences
+            2. Gets favorite_genres list
+            3. Falls back to genre_weights if not set
+        RETURNS: ["Action", "Drama", "Comedy", ...]
+
+    
+    METHOD: _get_disliked_movie_ids(username) -> List[str]
+        DESCRIPTION: Get list of disliked movie IDs to filter out
+        RETURNS: ["movie_id1", "movie_id2", ...]
+    
+    METHOD: _get_ai_recommendations(username, user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Get AI recommendations from recommendation_engine
+        RETURNS: 20 AI-recommended movies
+    
+    METHOD: _get_top_watched_movies(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Most watched movies by all users
+        PROCESS:
+            1. Queries MovieWatchHistory
+            2. Aggregates watch_count per movie
+            3. Sorts by watch_count DESC
+            4. Filters by user's genres (60% primary, 30% secondary)
+            5. Excludes disliked movies
+        RETURNS: 20 movies
+    
+    METHOD: _get_top_watched_series(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Most watched TV shows by all users
+        (Same process as _get_top_watched_movies but type="TV Show")
+    
+    METHOD: _get_top_searched_movies(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Most searched movies
+        PROCESS:
+            1. Queries UserActivity (activity_type="search")
+            2. Counts searches per movie_id
+            3. Sorts by search count
+            4. Filters by user's genres
+        RETURNS: 20 movies
+    
+    METHOD: _get_top_searched_series(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Most searched TV shows
+        (Same as _get_top_searched_movies but type="TV Show")
+    
+    METHOD: _get_top_10_movies(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Highest rated movies
+        PROCESS:
+            1. Queries movies with imdb_rating > 0
+            2. Sorts by imdb_rating DESC
+            3. Filters by user's genres
+        RETURNS: 10 movies
+    
+    METHOD: _get_top_10_series(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Highest rated TV shows
+        (Same as _get_top_10_movies but type="TV Show")
+    
+    METHOD: _get_top_favorites(user_genres, disliked_ids, count=20) -> List[Dict]
+        DESCRIPTION: Most favorited movies by all users
+        PROCESS:
+            1. Queries Favorite collection
+            2. Counts favorites per movie_id
+            3. Sorts by favorite count
+            4. Filters by user's genres
+        RETURNS: 20 movies
+    
+    METHOD: _get_newly_added_movies(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Recently added movies (last 30 days)
+        PROCESS:
+            1. Filters movies by date_added (last 30 days)
+            2. Sorts by date_added DESC
+            3. Filters by user's genres
+        RETURNS: 20 movies
+    
+    METHOD: _get_newly_added_series(user_genres, disliked_ids) -> List[Dict]
+        DESCRIPTION: Recently added TV shows
+        (Same as _get_newly_added_movies but type="TV Show")
+
+    
+    METHOD: _sort_by_user_genres(movies, user_genres) -> List[Dict]
+        DESCRIPTION: Sort movies by user's genre preferences
+        PROCESS:
+            1. Calculates genre match score for each movie
+            2. Primary genre match: +3 points
+            3. Secondary genre match: +2 points
+            4. Other genre match: +1 point
+            5. Sorts by score DESC
+        RETURNS: Sorted movie list
+    
+    METHOD: _sections_to_dict(sections_doc) -> Dict
+        DESCRIPTION: Converts MongoDB document to dictionary
+        RETURNS: All 10 sections as dict
+    
+    METHOD: _update_sections(existing, sections_data, user_genres)
+        DESCRIPTION: Updates existing sections in MongoDB
+    
+    METHOD: _create_sections(username, sections_data, user_genres)
+        DESCRIPTION: Creates new sections in MongoDB
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 vector_store.py - SIMPLE VECTOR DATABASE                                │
+│ LOCATION: django project backend/recommendations/vector_store.py           │
+│ DESCRIPTION: Lightweight numpy-based vector DB for embeddings              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: SimpleVectorDB
+    DESCRIPTION: File-based vector database using numpy + pickle
+    
+    INITIALIZATION:
+        __init__(path="./vector_db")
+            - Creates vector_db/ folder if not exists
+            - Stores embeddings and metadata as pickle files
+    
+    METHOD: get_or_create_collection(name, metadata=None) -> VectorCollection
+        DESCRIPTION: Get existing or create new collection
+        RETURNS: VectorCollection object
+    
+    METHOD: list_collections() -> List[str]
+        DESCRIPTION: List all collection names
+        RETURNS: ["movies", "user_profiles"]
+
+CLASS: VectorCollection
+    DESCRIPTION: A single collection of embeddings
+    
+    METHOD: add(id, embedding, metadata) -> bool
+        DESCRIPTION: Add embedding to collection
+        INPUT:
+            id: str (unique identifier)
+            embedding: List[float] (512-dim vector)
+            metadata: dict (title, genres, etc.)
+        PROCESS:
+            1. Converts list to numpy array
+            2. Stores in embeddings dict
+            3. Stores metadata
+            4. Saves to pickle file
+        RETURNS: True if successful
+    
+    METHOD: query(embedding, top_k=10, filter_func=None) -> List[Dict]
+        DESCRIPTION: Find similar embeddings
+        PROCESS:
+            1. Calculates cosine similarity with all embeddings
+            2. Sorts by similarity DESC
+            3. Applies filter if provided
+            4. Returns top K results
+        RETURNS: [{
+            id: str,
+            similarity: float,
+            metadata: dict
+        }, ...]
+    
+    METHOD: get(id) -> Optional[Dict]
+        DESCRIPTION: Get embedding by ID
+        RETURNS: {embedding: List[float], metadata: dict}
+    
+    METHOD: delete(id) -> bool
+        DESCRIPTION: Delete embedding by ID
+    
+    METHOD: count() -> int
+        DESCRIPTION: Get number of embeddings in collection
+    
+    METHOD: _save()
+        DESCRIPTION: Saves collection to pickle files
+        FILES:
+            {collection_name}_embeddings.pkl
+            {collection_name}_metadata.pkl
+
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 views.py - RECOMMENDATION API VIEWS                                     │
+│ LOCATION: django project backend/recommendations/views.py                  │
+│ DESCRIPTION: REST API endpoints for recommendations                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: HealthCheckView(APIView)
+    ENDPOINT: GET /api/recommendations/health/
+    DESCRIPTION: Check if recommendation system is working
+    
+    METHODS:
+        get(request)
+            PROCESS:
+                1. Checks TensorFlow model loaded
+                2. Checks vector DB accessible
+                3. Counts indexed movies
+            OUTPUT: {
+                status: "healthy",
+                tensorflow: "loaded",
+                vector_db: "accessible",
+                indexed_movies: 500
+            }
+
+CLASS: IndexMoviesView(APIView)
+    ENDPOINT: POST /api/recommendations/index-movies/
+    DESCRIPTION: Index all movies for AI (admin only)
+    
+    METHODS:
+        post(request)
+            PROCESS:
+                1. Calls engine.index_all_movies()
+                2. Indexes all Movie + TVShow documents
+                3. Shows progress
+            OUTPUT: {
+                message: "Indexed X movies",
+                total: 500,
+                indexed: 495,
+                failed: 5
+            }
+
+CLASS: GetRecommendationsView(APIView)
+    ENDPOINT: GET /api/recommendations/{username}/
+    DESCRIPTION: Get personalized AI recommendations
+    
+    METHODS:
+        get(request, username)
+            QUERY PARAMS:
+                count: int (default 20)
+                genre: str (optional filter)
+                type: str (optional filter)
+            PROCESS:
+                1. Calls engine.get_recommendations()
+                2. Returns AI-generated recommendations
+            OUTPUT: {
+                recommendations: [{id, title, similarity, ...}, ...],
+                count: 20
+            }
+
+CLASS: GetSimilarMoviesView(APIView)
+    ENDPOINT: GET /api/recommendations/similar/{movie_id}/
+    DESCRIPTION: Get similar movies (content-based)
+    
+    METHODS:
+        get(request, movie_id)
+            QUERY PARAMS: count=int (default 10)
+            PROCESS:
+                1. Calls engine.get_similar_movies()
+                2. Returns content-similar movies
+            OUTPUT: {
+                similar: [{id, title, similarity, ...}, ...]
+            }
+
+CLASS: GetTrendingView(APIView)
+    ENDPOINT: GET /api/recommendations/trending/
+    DESCRIPTION: Get trending/popular movies
+    
+    METHODS:
+        get(request)
+            QUERY PARAMS: count=int (default 20)
+            PROCESS:
+                1. Calls engine.get_trending()
+                2. Returns popular movies
+            OUTPUT: {
+                trending: [{id, title, trending_score, ...}, ...]
+            }
+
+
+CLASS: GetPersonalizedSectionsView(APIView)
+    ENDPOINT: GET /api/recommendations/sections/{username}/
+    DESCRIPTION: Get all 10 personalized sections (cached)
+    
+    METHODS:
+        get(request, username)
+            PROCESS:
+                1. Creates PersonalizedSectionsEngine instance
+                2. Calls generate_sections_for_user()
+                3. Returns cached or newly generated sections
+            OUTPUT: {
+                ai_recommendations: [...20 movies...],
+                top_watched_movies: [...20 movies...],
+                top_watched_series: [...20 movies...],
+                top_searched_movies: [...20 movies...],
+                top_searched_series: [...20 movies...],
+                top_10_movies: [...10 movies...],
+                top_10_series: [...10 movies...],
+                top_20_favorites: [...20 movies...],
+                newly_added_movies: [...20 movies...],
+                newly_added_series: [...20 movies...],
+                last_updated: "2026-08-13T10:30:00Z"
+            }
+
+CLASS: RegeneratePersonalizedSectionsView(APIView)
+    ENDPOINT: POST /api/recommendations/sections/{username}/regenerate/
+    DESCRIPTION: Force regenerate all sections (admin/debug)
+    
+    METHODS:
+        post(request, username)
+            PROCESS:
+                1. Creates PersonalizedSectionsEngine instance
+                2. Calls generate_sections_for_user(force_regenerate=True)
+                3. Clears cache and regenerates
+            OUTPUT: {
+                message: "Sections regenerated",
+                sections: {...all 10 sections...}
+            }
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project backend/backend/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Django project configuration and settings
+
+FILES & CONTENTS:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 __init__.py                                                              │
+│ DESCRIPTION: Makes this folder a Python package                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 asgi.py                                                                  │
+│ DESCRIPTION: ASGI configuration for async deployment                       │
+│ CONTENTS: Standard Django ASGI application setup                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 wsgi.py                                                                  │
+│ DESCRIPTION: WSGI configuration for production deployment                  │
+│ CONTENTS: Standard Django WSGI application setup                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 test.py                                                                  │
+│ DESCRIPTION: Test file for debugging                                       │
+│ CONTENTS: Various test functions and experiments                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 settings.py - DJANGO CONFIGURATION                                      │
+│ LOCATION: django project backend/backend/settings.py                       │
+│ DESCRIPTION: All Django project settings and configuration                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CONFIGURATION SECTIONS:
+
+1. BASIC SETTINGS:
+    SECRET_KEY               → From .env file (Django security)
+    DEBUG                    → From .env (True in development)
+    ALLOWED_HOSTS            → ['*'] (all hosts allowed)
+    ROOT_URLCONF             → 'backend.urls'
+    WSGI_APPLICATION         → 'backend.wsgi.application'
+
+2. INSTALLED APPS:
+    django.contrib.admin
+    django.contrib.auth
+    django.contrib.contenttypes
+    django.contrib.sessions
+    django.contrib.messages
+    django.contrib.staticfiles
+    rest_framework           → Django REST Framework
+    rest_framework_simplejwt → JWT authentication
+    corsheaders              → CORS support
+    accounts                 → User management app
+    movies                   → Movie management app
+    recommendations          → AI recommendation app
+
+3. MIDDLEWARE:
+    django.middleware.security.SecurityMiddleware
+    django.contrib.sessions.middleware.SessionMiddleware
+    corsheaders.middleware.CorsMiddleware → CORS handling
+    django.middleware.common.CommonMiddleware
+    django.middleware.csrf.CsrfViewMiddleware
+    django.contrib.auth.middleware.AuthenticationMiddleware
+    django.contrib.messages.middleware.MessageMiddleware
+    django.middleware.clickjacking.XFrameOptionsMiddleware
+
+4. CORS CONFIGURATION:
+    CORS_ALLOWED_ORIGINS     → ['http://localhost:4200', 'http://127.0.0.1:4200']
+    CORS_ALLOW_CREDENTIALS   → True (allow cookies/tokens)
+    CORS_ALLOW_HEADERS       → ['content-type', 'authorization', 'x-requested-with']
+    CORS_ALLOW_METHODS       → ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+
+5. DATABASES:
+    # SQLite (Django internal only)
+    default = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3'
+    }
+    
+    # MongoDB (Main database, configured via mongoengine)
+    MONGO_DB_NAME         → From .env
+    MONGO_USER            → From .env
+    MONGO_PASSWORD        → From .env
+    MONGO_CLUSTER         → From .env
+    
+    mongoengine.connect(
+        db=MONGO_DB_NAME,
+        host=f"mongodb+srv://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_CLUSTER}"
+    )
+
+6. JWT AUTHENTICATION:
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'rest_framework_simplejwt.authentication.JWTAuthentication',
+        ],
+    }
+    
+    SIMPLE_JWT = {
+        'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+        'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+        'ROTATE_REFRESH_TOKENS': False,
+        'BLACKLIST_AFTER_ROTATION': False,
+        'ALGORITHM': 'HS256',
+        'SIGNING_KEY': SECRET_KEY,
+    }
+
+7. PASSWORD HASHING:
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.PBKDF2PasswordHasher',  # Default
+        'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+        'django.contrib.auth.hashers.Argon2PasswordHasher',
+        'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    ]
+    
+    PBKDF2 Settings:
+        - Algorithm: PBKDF2 with SHA256
+        - Iterations: 600,000
+        - Auto-salting
+
+
+8. EMAIL CONFIGURATION (for password reset):
+    EMAIL_BACKEND            → 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST               → 'smtp.gmail.com'
+    EMAIL_PORT               → 587
+    EMAIL_USE_TLS            → True
+    EMAIL_HOST_USER          → From .env (Gmail address)
+    EMAIL_HOST_PASSWORD      → From .env (Gmail app password)
+    DEFAULT_FROM_EMAIL       → EMAIL_HOST_USER
+
+9. TEMPLATES:
+    TEMPLATES = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    }]
+
+10. STATIC FILES:
+    STATIC_URL               → '/static/'
+    STATIC_ROOT              → BASE_DIR / 'staticfiles'
+    STATICFILES_DIRS         → [BASE_DIR / 'static']
+
+11. INTERNATIONALIZATION:
+    LANGUAGE_CODE            → 'en-us'
+    TIME_ZONE                → 'UTC'
+    USE_I18N                 → True
+    USE_TZ                   → True
+
+12. EXTERNAL API KEYS (from .env):
+    RAPIDAPI_KEY             → RapidAPI Netflix Database
+    OMDB_API_KEY             → OMDb API
+    TMDB_API_KEY             → The Movie Database
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 urls.py - MAIN URL ROUTING                                              │
+│ LOCATION: django project backend/backend/urls.py                           │
+│ DESCRIPTION: Master URL configuration (44 routes total)                    │
+│ ALREADY DOCUMENTED IN: PROJECT_QUESTIONS.txt Q26-Q30                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+See PROJECT_QUESTIONS.txt Section 6 for complete URL routing documentation.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Angular 18 single-page application (SPA)
+
+STRUCTURE:
+    📁 src/                → Source code
+        📁 app/            → Angular application
+        📁 assets/         → Static assets (images, fonts)
+        📁 styles/         → Global styles
+    📄 package.json        → Node.js dependencies
+    📄 angular.json        → Angular configuration
+    📄 tsconfig.json       → TypeScript configuration
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Main Angular application code
+
+STRUCTURE:
+    📁 components/         → UI components
+    📁 services/           → API services
+    📁 guards/             → Route guards
+    📁 interceptors/       → HTTP interceptors
+    📁 models/             → TypeScript interfaces
+    📄 app.component.ts    → Root component
+    📄 app.routes.ts       → Routing configuration
+    📄 app.config.ts       → App configuration
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/services/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Angular services for API communication
+
+FILES & CONTENTS:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 auth.service.ts - AUTHENTICATION SERVICE                                │
+│ LOCATION: django project frontend/src/app/services/auth.service.ts         │
+│ DESCRIPTION: User authentication and JWT token management                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: AuthService
+    DESCRIPTION: Handles login, logout, and token management
+    
+    PROPERTIES:
+        private apiUrl = 'http://localhost:8000/api'
+    
+    METHODS:
+        login(username: string, password: string): Observable<any>
+            DESCRIPTION: Login user and store JWT tokens
+            PROCESS:
+                1. POST to /api/login/
+                2. Receives access + refresh tokens
+                3. Stores in sessionStorage
+                4. Stores username and role
+            RETURNS: Observable<{access, refresh, username, role}>
+        
+        register(username: string, email: string, password: string): Observable<any>
+            DESCRIPTION: Register new user
+            RETURNS: Observable<{message}>
+        
+        logout(): void
+            DESCRIPTION: Clear tokens and redirect to login
+            PROCESS:
+                1. sessionStorage.clear()
+                2. Navigates to /login
+        
+        getAccessToken(): string | null
+            DESCRIPTION: Get JWT access token
+            RETURNS: Token string or null
+        
+        getRefreshToken(): string | null
+            DESCRIPTION: Get JWT refresh token
+            RETURNS: Token string or null
+        
+        getUsername(): string | null
+            DESCRIPTION: Get current username
+            RETURNS: Username or null
+        
+        getRole(): string | null
+            DESCRIPTION: Get user role
+            RETURNS: 'user' or 'admin' or null
+        
+        isLoggedIn(): boolean
+            DESCRIPTION: Check if user is logged in
+            RETURNS: true if access token exists
+        
+        isAdmin(): boolean
+            DESCRIPTION: Check if user is admin
+            RETURNS: true if role === 'admin'
+        
+        requestPasswordReset(email: string): Observable<any>
+            DESCRIPTION: Request password reset code
+            RETURNS: Observable<{message}>
+        
+        verifyResetCode(email: string, code: string): Observable<any>
+            DESCRIPTION: Verify reset code
+            RETURNS: Observable<{valid}>
+        
+        resetPassword(email: string, code: string, newPassword: string): Observable<any>
+            DESCRIPTION: Reset password with code
+            RETURNS: Observable<{message}>
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 movie.service.ts - MOVIE OPERATIONS SERVICE                             │
+│ LOCATION: django project frontend/src/app/services/movie.service.ts        │
+│ DESCRIPTION: All movie CRUD and API operations                             │
+│ ALREADY DETAILED IN: First read (lines 1-100)                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: MovieService
+    DESCRIPTION: Central service for ALL movie operations
+    
+    METHODS (Summary):
+        getMovies(params) → List movies with pagination/filters
+        addMovie(movie) → Add new movie (admin)
+        editMovie(id, movie) → Edit movie (admin)
+        deleteMovie(id) → Delete movie (admin)
+        getGenres() → Get all unique genres
+        fetchExternalMovies(params) → Fetch from RapidAPI
+        searchOMDb(title) → Search OMDb API
+        saveSelectedOMDb(movies) → Save from OMDb
+        browseExternalApi(url) → Import from any API
+        toggleFavorite(username, movieId) → Add/remove favorite
+        getFavorites(username) → Get favorite IDs
+        getFavoriteMovies(username) → Get favorite details
+        getPacks() → Get all packs
+        getPackDetails(id) → Get pack movies
+        createPack(pack) → Create new pack (admin)
+        updatePack(id, pack) → Update pack (admin)
+        deletePack(id) → Delete pack (admin)
+        previewPack(params) → Preview pack before creating
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 recommendation.service.ts - AI RECOMMENDATION SERVICE                   │
+│ LOCATION: django project frontend/src/app/services/recommendation.service.ts │
+│ DESCRIPTION: AI recommendations and personalized sections                  │
+│ ALREADY DETAILED IN: First read (lines 1-50)                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: RecommendationService
+    DESCRIPTION: Connect to AI recommendation backend
+    
+    METHODS:
+        getRecommendations(username, count, genre?, type?): Observable<any>
+            DESCRIPTION: Get AI personalized recommendations
+            RETURNS: {recommendations: [{...}, ...]}
+        
+        getSimilarMovies(movieId, count): Observable<any>
+            DESCRIPTION: Get content-similar movies
+            RETURNS: {similar: [{...}, ...]}
+        
+        getTrending(count): Observable<any>
+            DESCRIPTION: Get trending/popular movies
+            RETURNS: {trending: [{...}, ...]}
+        
+        checkHealth(): Observable<any>
+            DESCRIPTION: Check AI system health
+            RETURNS: {status, tensorflow, vector_db, indexed_movies}
+        
+        indexMovies(): Observable<any>
+            DESCRIPTION: Index all movies for AI (admin)
+            RETURNS: {message, total, indexed, failed}
+        
+        getAllSections(username): Observable<any>
+            DESCRIPTION: Get all 10 personalized sections (cached)
+            RETURNS: {
+                ai_recommendations: [...],
+                top_watched_movies: [...],
+                ... (10 sections)
+            }
+        
+        regenerateSections(username): Observable<any>
+            DESCRIPTION: Force regenerate sections (admin)
+            RETURNS: {message, sections}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 analytics.service.ts - USER BEHAVIOR TRACKING SERVICE                   │
+│ LOCATION: django project frontend/src/app/services/analytics.service.ts    │
+│ DESCRIPTION: Track user actions and retrieve analytics                     │
+│ ALREADY DETAILED IN: Earlier read (lines 1-100)                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: AnalyticsService
+    DESCRIPTION: Track and analyze user behavior
+    
+    PROPERTIES:
+        private sessionId: string | null → Current session ID
+        private sessionStart: Date | null → Session start time
+    
+    METHODS:
+        startSession(username): Observable<any>
+            DESCRIPTION: Start new user session
+            RETURNS: {session_id}
+        
+        endSession(): Observable<any>
+            DESCRIPTION: End current session
+            RETURNS: {message, duration}
+        
+        trackActivity(data): Observable<any>
+            DESCRIPTION: Track any user activity
+            INPUT: {username, activity_type, movie_id?, search_query?, ...}
+            RETURNS: {message}
+        
+        trackSearch(username, query, resultsCount): Observable<any>
+            DESCRIPTION: Track search action
+        
+        trackMovieClick(username, movieId, movieTitle, movieType): Observable<any>
+            DESCRIPTION: Track movie card click
+        
+        trackMoviePlay(username, movieId, movieTitle): Observable<any>
+            DESCRIPTION: Track video play start
+        
+        trackMovieWatch(username, movieId, watchDuration, watchPercentage): Observable<any>
+            DESCRIPTION: Track watch progress (every 30 seconds)
+        
+        trackMovieFinish(username, movieId, totalDuration): Observable<any>
+            DESCRIPTION: Track movie completion
+        
+        trackRecommendationFeedback(username, movieId, position): Observable<any>
+            DESCRIPTION: Track which recommendations user clicks (AI learning)
+        
+        getUserAnalytics(username): Observable<any>
+            DESCRIPTION: Get analytics for user
+            RETURNS: {total_activities, total_searches, favorite_genres, ...}
+        
+        getAllAnalytics(): Observable<any>
+            DESCRIPTION: Get analytics for all users (admin)
+            RETURNS: {total_users, total_activities, popular_movies, ...}
+        
+        getContinueWatching(username): Observable<any>
+            DESCRIPTION: Get Continue Watching list (5-95% completion)
+            RETURNS: {movies: [{movie_id, watch_percentage, ...}, ...]}
+        
+        updateWatchingPercentage(username, movieId, percentage): Observable<any>
+            DESCRIPTION: Update user-editable watch percentage
+        
+        getDeviceInfo(): object
+            DESCRIPTION: Get device and browser information
+            RETURNS: {device, browser, screen_resolution, platform}
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/components/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Angular UI components
+
+COMPONENTS LIST:
+    📁 login/                  → Login form
+    📁 register/               → Registration form
+    📁 admin-login/            → Admin login form
+    📁 forgot-password/        → Password reset flow
+    📁 dashboard/              → Main user dashboard
+    📁 admin-dashboard/        → Admin panel
+    📁 api-browser/            → External API browser
+    📁 logout/                 → Logout component
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 dashboard.ts - MAIN USER DASHBOARD COMPONENT                            │
+│ LOCATION: django project frontend/src/app/components/dashboard/dashboard.ts │
+│ DESCRIPTION: Netflix-style dashboard with 10 personalized sections         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLASS: DashboardComponent
+    DESCRIPTION: Main user interface with movies and recommendations
+    
+    PROPERTIES:
+        username: string                    → Current user
+        sections: any                       → All 10 sections from backend
+        continueWatching: any[]             → Movies in progress
+        favorites: string[]                 → Favorite movie IDs
+        genres: string[]                    → All available genres
+        selectedGenre: string               → Current genre filter
+        searchQuery: string                 → Search text
+        movies: any[]                       → Search/filtered results
+        currentPage: number                 → Pagination current page
+        totalPages: number                  → Total pages
+        loading: boolean                    → Loading state
+    
+    LIFECYCLE METHODS:
+        ngOnInit()
+            DESCRIPTION: Component initialization
+            PROCESS:
+                1. Gets username from AuthService
+                2. Calls loadAllSections()
+                3. Calls loadContinueWatching()
+                4. Calls loadFavorites()
+                5. Calls loadGenres()
+                6. Starts session tracking
+        
+        ngOnDestroy()
+            DESCRIPTION: Component cleanup
+            PROCESS: Ends session tracking
+    
+    DATA LOADING METHODS:
+        loadAllSections()
+            DESCRIPTION: Load all 10 personalized sections
+            PROCESS:
+                1. Calls recommendationService.getAllSections(username)
+                2. Receives cached or newly generated sections
+                3. Stores in this.sections
+            SECTIONS: ai_recommendations, top_watched_movies, top_watched_series,
+                     top_searched_movies, top_searched_series, top_10_movies,
+                     top_10_series, top_20_favorites, newly_added_movies,
+                     newly_added_series
+        
+        loadContinueWatching()
+            DESCRIPTION: Load Continue Watching section
+            PROCESS:
+                1. Calls analyticsService.getContinueWatching(username)
+                2. Displays movies with 5-95% completion
+                3. Shows progress bars
+        
+        loadFavorites()
+            DESCRIPTION: Load user's favorite movie IDs
+            PROCESS: Calls movieService.getFavorites(username)
+        
+        loadGenres()
+            DESCRIPTION: Load all unique genres
+            PROCESS: Calls movieService.getGenres()
+        
+        loadMovies(page = 1)
+            DESCRIPTION: Load movies for search/filter
+            PROCESS:
+                1. Builds params (page, limit, search, genre)
+                2. Calls movieService.getMovies(params)
+                3. Updates pagination
+
+    
+    USER ACTION METHODS:
+        onSearchChange()
+            DESCRIPTION: Handle search input (real-time)
+            PROCESS:
+                1. Debounces 300ms after user stops typing
+                2. Calls loadMovies() with search query
+                3. Tracks search with analyticsService
+        
+        onGenreChange()
+            DESCRIPTION: Handle genre filter selection
+            PROCESS: Reloads movies with genre filter
+        
+        toggleFavorite(movieId, event)
+            DESCRIPTION: Add/remove favorite
+            PROCESS:
+                1. Calls movieService.toggleFavorite(username, movieId)
+                2. Updates favorites list
+                3. Updates heart icon (filled/empty)
+        
+        onMovieClick(movie)
+            DESCRIPTION: Handle movie card click
+            PROCESS:
+                1. Tracks click with analyticsService
+                2. Opens movie details modal
+                3. If from AI recommendations → tracks recommendation feedback
+        
+        playMovie(movie)
+            DESCRIPTION: Start video playback
+            PROCESS:
+                1. Tracks play with analyticsService
+                2. Opens video player
+                3. Starts watch tracking (every 30 seconds)
+        
+        watchProgress(movie, watchedSeconds, totalDuration)
+            DESCRIPTION: Track watch progress
+            PROCESS:
+                1. Calculates percentage
+                2. Updates MovieWatchHistory via analyticsService
+                3. Updates Continue Watching section
+    
+    PAGINATION METHODS:
+        nextPage()
+            DESCRIPTION: Go to next page
+            PROCESS: Increments currentPage, calls loadMovies()
+        
+        previousPage()
+            DESCRIPTION: Go to previous page
+            PROCESS: Decrements currentPage, calls loadMovies()
+        
+        goToPage(page)
+            DESCRIPTION: Jump to specific page
+            PROCESS: Sets currentPage, calls loadMovies()
+    
+    CAROUSEL METHODS:
+        scrollLeft(section)
+            DESCRIPTION: Scroll carousel left (Netflix-style)
+        
+        scrollRight(section)
+            DESCRIPTION: Scroll carousel right
+    
+    HELPER METHODS:
+        isFavorite(movieId): boolean
+            DESCRIPTION: Check if movie is favorited
+            RETURNS: true if movieId in favorites array
+        
+        logout()
+            DESCRIPTION: Logout user
+            PROCESS: Calls authService.logout()
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ OTHER COMPONENTS (Brief Summary)                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+LoginComponent (login/login.ts):
+    - Login form with username + password
+    - Calls authService.login()
+    - Redirects to /dashboard on success
+
+RegisterComponent (register/register.ts):
+    - Registration form with username + email + password
+    - Calls authService.register()
+    - Redirects to /login on success
+
+ForgotPasswordComponent (forgot-password/forgot-password.ts):
+    - 3-step password reset flow:
+      1. Request reset code (email)
+      2. Verify code
+      3. Set new password
+
+AdminDashboardComponent (admin-dashboard/admin-dashboard.component.ts):
+    - Admin panel with movies and users management
+    - CRUD operations for movies
+    - User management (view, delete)
+    - Pack management
+    - External API integration
+
+ApiBrowserComponent (api-browser/api-browser.ts):
+    - Browse and import from external APIs
+    - RapidAPI, OMDb, generic API support
+    - Preview before importing
+
+LogoutComponent (logout/logout.component.ts):
+    - Clears tokens and redirects to login
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/guards/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Route protection guards
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 auth.guard.ts - AUTHENTICATION GUARD                                    │
+│ LOCATION: django project frontend/src/app/guards/auth.guard.ts             │
+│ DESCRIPTION: Protects routes from unauthenticated access                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FUNCTION: authGuard(route, state): boolean | UrlTree
+    DESCRIPTION: Check if user can access route
+    PROCESS:
+        1. Checks if user is logged in (token exists)
+        2. If logged in → allow access (return true)
+        3. If not logged in → redirect to /login
+    USAGE: Applied to routes in app.routes.ts
+    EXAMPLE:
+        { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] }
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/interceptors/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: HTTP interceptors
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📄 auth.interceptor.ts - JWT TOKEN INTERCEPTOR                             │
+│ LOCATION: django project frontend/src/app/interceptors/auth.interceptor.ts │
+│ DESCRIPTION: Automatically adds JWT token to all HTTP requests             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FUNCTION: authInterceptor(req, next): Observable<HttpEvent<any>>
+    DESCRIPTION: Intercepts all outgoing HTTP requests
+    PROCESS:
+        1. Gets access token from AuthService
+        2. If token exists:
+           - Clones request
+           - Adds "Authorization: Bearer {token}" header
+        3. Passes request to next handler
+    USAGE: Configured in app.config.ts
+    RESULT: Developer doesn't need to manually add auth header
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: django project frontend/src/app/models/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: TypeScript interfaces and types
+
+INTERFACES:
+    Movie
+        id: string
+        title: string
+        type: string
+        release_year: number
+        poster: string
+        genres: string
+        description: string
+        imdb_rating: number
+        director: string
+        cast: string
+    
+    User
+        username: string
+        email: string
+        role: string
+    
+    Pack
+        id: string
+        name: string
+        genres: string[]
+        years: number[]
+        movie_ids: string[]
+        cover_image: string
+        level: number
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 FOLDER: .txt files/
+═══════════════════════════════════════════════════════════════════════════════
+
+DESCRIPTION: Project documentation files
+
+FILES:
+    📄 PROJECT_QUESTIONS.txt                  → This companion file (50 Q&A)
+    📄 FILES_AND_FUNCTIONS.txt                → This file (complete structure)
+    📄 COMPLETE_PROJECT_DOCUMENTATION.md      → Overview documentation
+    📄 HOW_AI_WORKS_FOR_YOU.txt               → User-friendly AI explanation
+    📄 PROJECT_ARCHITECTURE.txt               → Technical architecture
+    📄 TECHNIQUES_APPRISES_STAGE.txt          → Learning summary
+    📄 ALL_USERS_CREDENTIALS.txt              → Test credentials
+    📄 PRESENTATION_QA_ALL_QUESTIONS.txt      → Presentation prep
+    📄 POUR_VOTRE_RAPPORT.md                  → Report helper (French)
+    📄 UPDATED_README.md                      → Updated project README
+
+
+═══════════════════════════════════════════════════════════════════════════════
+SUMMARY: COMPLETE PROJECT STRUCTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+BACKEND (Django + MongoDB + TensorFlow):
+    📁 accounts/ (7 files, 13 models, 30+ views)
+        - User authentication (JWT + session)
+        - Password reset with email
+        - Favorites management
+        - Watch progress (Continue Watching)
+        - Analytics tracking (7 MongoDB collections)
+        - User preferences
+        - Hidden dislike system
+        - AI feedback tracking
+    
+    📁 movies/ (3 files, 3 models, 15+ views)
+        - Movie & TV show CRUD
+        - Search with filters
+        - External API integration (RapidAPI, OMDb)
+        - Pack system (themed collections)
+    
+    📁 recommendations/ (4 files, 2 classes)
+        - TensorFlow Hub AI (Universal Sentence Encoder v4)
+        - Multi-genre blended recommendations (FIXED)
+        - Personalized sections engine (10 sections, cached)
+        - Vector database (numpy + pickle)
+        - Content-based similarity
+    
+    📁 backend/ (4 files)
+        - Django settings (MongoDB, JWT, CORS, email)
+        - URL routing (44 endpoints)
+        - WSGI/ASGI configuration
+
+FRONTEND (Angular 18):
+    📁 components/ (8 components)
+        - Dashboard (Netflix-style with 10 sections)
+        - Login/Register
+        - Admin panel
+        - Password reset
+    
+    📁 services/ (4 services)
+        - AuthService (JWT management)
+        - MovieService (Movie operations)
+        - RecommendationService (AI recommendations)
+        - AnalyticsService (Behavior tracking)
+    
+    📁 guards/ (1 guard)
+        - AuthGuard (Route protection)
+    
+    📁 interceptors/ (1 interceptor)
+        - AuthInterceptor (Auto JWT headers)
+
+TOTAL CODE:
+    - Backend: ~10,000 lines Python
+    - Frontend: ~5,000 lines TypeScript
+    - 13 MongoDB collections
+    - 44 API endpoints
+    - 8 UI components
+    - 4 Angular services
+
+TECHNOLOGIES:
+    - Django 5.0 + Django REST Framework
+    - MongoDB Atlas (cloud database)
+    - TensorFlow Hub (AI embeddings)
+    - Angular 18 + TypeScript
+    - JWT authentication
+    - PBKDF2 password hashing
+    - CORS support
+    - Email integration (Gmail SMTP)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF FILES & FUNCTIONS GUIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This file contains complete documentation of every folder, file, class, and function.
+Use this as a reference when navigating the codebase or explaining the project structure.
+
+Companion file: PROJECT_QUESTIONS.txt (50 detailed Q&A about the code)

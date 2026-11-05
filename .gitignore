@@ -1,0 +1,24 @@
+# Python environments and generated files
+**/.venv/
+**/__pycache__/
+*.py[cod]
+**/staticfiles/
+**/*.sqlite3
+**/*.db
+
+# Frontend dependencies and build output
+**/node_modules/
+**/.angular/
+**/dist/
+
+# Local configuration and sensitive local files
+**/.env
+**/.env.*
+!**/.env.example
+/.txt files/ALL_USERS_CREDENTIALS.txt
+/files important/api.txt
+/files important/i want first to add an icon for sea.txt
+
+# Operating system and editor files
+Thumbs.db
+.DS_Store

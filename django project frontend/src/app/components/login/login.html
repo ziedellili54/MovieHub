@@ -1,0 +1,72 @@
+<div class="login-container">
+  <div class="login-card">
+
+    <!-- Logo/Brand -->
+    <div class="brand">
+      <span class="brand-icon">🎬</span>
+      <span class="brand-name">MovieHub</span>
+    </div>
+
+    <h2>User Portal Sign In</h2>
+    <p class="subtitle">Enter your user credentials to access catalog and favorites</p>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="success-banner">
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-banner">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="credentials.username"
+            required
+            placeholder="Enter your username"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="credentials.password"
+            required
+            placeholder="••••••••"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading" class="spinner-row">
+          <span class="btn-spinner"></span> Authenticating...
+        </span>
+      </button>
+    </form>
+
+    <div class="forgot-password-link">
+      <a routerLink="/forgot-password">Mot de passe oublié ?</a>
+    </div>
+
+    <div class="footer-links">
+      Don't have an account? <a routerLink="/register">Register here</a>
+    </div>
+  </div>
+</div>

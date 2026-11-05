@@ -1,0 +1,64 @@
+<div class="login-container">
+  <div class="login-card admin-card">
+
+    <!-- Brand Header -->
+    <div class="brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-name">MovieHub</span>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+
+    <h2>Admin Console Sign In</h2>
+    <p class="subtitle">Enter administrator credentials to access system controls</p>
+
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="success-banner">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="error-banner">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="input-group">
+        <label for="admin-username">Admin Username</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="admin-username"
+            name="username"
+            [(ngModel)]="credentials.username"
+            required
+            placeholder="Administrator username"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="admin-password">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="admin-password"
+            name="password"
+            [(ngModel)]="credentials.password"
+            required
+            placeholder="••••••••"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-admin-submit" [disabled]="loading">
+        <span *ngIf="!loading">Authenticate Admin</span>
+        <span *ngIf="loading" class="spinner-row">
+          <span class="btn-spinner"></span> Verifying credentials...
+        </span>
+      </button>
+    </form>
+
+  </div>
+</div>
